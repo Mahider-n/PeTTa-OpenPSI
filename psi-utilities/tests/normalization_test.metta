@@ -61,4 +61,4 @@
 !(test (normalizeUsingZScoreDataset 2 ()) ())   
 !(test (normalizeUsingZScoreDataset 2 (2)) 0.0)   
 !(test (normalizeUsingZScoreDataset 2 (2 2 2)) 0.0)
- 
+ ;

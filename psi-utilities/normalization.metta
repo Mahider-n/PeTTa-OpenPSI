@@ -35,7 +35,6 @@
 ;normalize list of values using min-max
 ;main
 ;base-case
-(= (normalizeList ()) ())
 (= (normalizeList $list)
   (if (== (size-atom $list) 0)
     ()  
