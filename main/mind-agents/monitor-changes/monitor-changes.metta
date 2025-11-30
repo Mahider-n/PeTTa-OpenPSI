@@ -100,8 +100,119 @@
     )
   )
 )
+;(: NetDifference Type)
+;(: netDiff (-> Number Expression NetDifference))
+;!(get-type (netDiff 7 (a b c))) 
+;(: NetDifference Type)
+;(: netDiff (-> Number Expression NetDifference))
+;!(get-type (netDiff 7 (a b c))) 
+;(: compareChanges (-> hyperon::space::DynSpace hyperon::space::DynSpace Expression))
+(= (compareChanges $space1 $space2)
+    (let* (
+            ($space_val_1 (collapse (get-atoms $space1)))
+            ($space_val_2 (collapse (get-atoms $space2)))
+            ($net (subtraction-atom $space_val_1 $space_val_2))
+          )
+        ((size-atom $net) $net)
+    )
+)
+
+;(: compareSpaceToList (-> hyperon::space::DynSpace Expression Expression))
+
+(= (compareSpaceToList $space $list)
+	(let* (
+          ($space_val (collapse (get-atoms $space)))
+          ($net (subtraction-atom $space_val $list))
+        )
+        ((size-atom $net) $net)
+    )
+)
+
+;(: detectChangesHelper (-> Grounded Expression Expression Number Expression Expression))
+
+(= (detectChangesHelper $space $time $previous_times $delta $accum)
+     (let* (
+            ($head (superpose $previous_times))
+            ; (() (println! ("head" $head)))
+            ($x (getImplication $head $space))
+            ($y (getImplication $time $space))
+          )
+       (if (== $x $y)
+         (let* (
+                 ($timeTv (extractTvFromRule $time $space))
+                 ($latestTv (extractTvFromRule $head $space))
+                 ($prevTvMean (cogTvMean $timeTv))
+                 ($latestTvMean (cogTvMean $latestTv))
+                 ($diff (- $latestTvMean $prevTvMean))
+               )
+           (if (>= (abs-math $diff) $delta)
+               (union-atom $accum (($time $head)))
+               $accum
+            )
+         )
+         $accum
+       )
+     
+   )
+)
+;The following function is written for checking 
+; the state of the atomspace. This is between two consecutive time cycles.
+;(: detectChanges (-> Grounded Expression Expression Number Expression Expression))
+
+(= (detectChanges $space $prev_times $latest_times $delta $accum)
+   (if (or (== $prev_times ()) (== $latest_times ()))
+       $accum
+       (let* (
+                ($latest (superpose $latest_times))
+                ($res (detectChangesHelper $space $latest $prev_times $delta ()))
+                ; (() (println! ("res" $res)))
+               )
+           (union-atom $accum $res)
+         )
+       
+   )
+)
+;(: monitor-changes (-> Grounded (->)))
+(= (monitor-changes $space) 
+   (let $prev_times (get-previous-times $space)
+     (if (== () $prev_times)
+          ()
+          (let* (
+                ($prev_times' (get-timevals $prev_times))
+                (($previous_time $latest_time) (setPreviousTime $prev_times'))
+                
+                ($at_times_latest (get-incoming-by-type $space $latest_time TimeValue)) 
+                ($at_times_previous (get-incoming-by-type $space $previous_time TimeValue))
+                ;(() (println! (prev $at_times_previous latest $at_times_latest)))
+
+                ($delta (match $space (tv_delta $v) $v))
+                ($changes-with-tv (detectChanges $space $at_times_previous $at_times_latest $delta ()))
+                ;(() (println! (changes from dc $changes-with-tv)))
+
+                (($pred-change-with-tv $pred-change-with-arg 
+                                      $pred-has-dramatic-changes) (addPredicatesHelper $space))
+
+                ($old-changes-with-tv (get-incoming-by-type $space $pred-change-with-tv REFERENCE_LINK))
+
+                ($_ (removePrevChanges $space $old-changes-with-tv))
+                ($_ (update-drmtc-chng-tv $pred-has-dramatic-changes $space (STV 0.0 0.0)))
+
+                ($at_times_latest' (get-incoming-by-type $space $latest_time TimeValue)) 
+                ($at_times_previous' (get-incoming-by-type $space $previous_time TimeValue))
+                ($__ (record-changes-tv $space $changes-with-tv))
+                ($remainingChanges (detectChanges $space $at_times_previous' $at_times_latest' $delta ()))
+              )
+              (if (== $remainingChanges ())
+                ()
+                (update-drmtc-chng-tv $pred-has-dramatic-changes $space (STV 1.0 1.0))
+              )
+          )
+       )
+     )
+)
 
 
+;============= Helper Functions =============
 ;(: addRuleLink (-> Grounded Symbol Expression Expression Expression))
 (= (addRuleLink  $space $handle $goal $andLink $tv)
    (let*
@@ -115,7 +226,7 @@
                     ($newRule (: $handle (IMPLICATION_LINK $andLink $goal)))
                     ($_ (add-atom  $space $newRule))
                     ($_ (add-atom  $space (: $handle $tv)))
-                    ($_ (add-atom  $space (isExecuted $handle (DEFAULT_TV)))) ;TODO: define DEFAULT_TV
+                    ($_ (add-atom  $space (isExecuted $handle (FALSE_TV)))) 
                   )
                   ()
             )
@@ -149,13 +260,11 @@
           )
     )
 )
- 
 
-;(: existsIn Grounded Atom Bool)
+
 (= (existsIn $space $atom)
    ( let $res (collapse (get-type-space $space $atom)) (not (== (%Undefined%) $res)) )
 )
-
 (= (addAndLink $space $context $action)
    (let $res 
         (collapse (match  $space (AND_LINK ($context $action)) (AND_LINK ($context $action))))
@@ -165,3 +274,17 @@
         )
      )
 )
+(= (getRuleType $id $space)
+   (collapse (match $space (: $id $type) $type))
+)
+(= (get-previous-times $space) 
+   (collapse (match $space (TimeValue $time-stamp $atom) (TimeValue $time-stamp $atom)))
+
+)
+(= (get-timevals $prev_times) 
+   (collapse (let $x (superpose $prev_times) (extract-timestamp $x)))
+)
+(= (extractTvFromRule $rule $space)
+   (let (TTV $ts $tv) (getTV $rule $space) $tv)
+)
+(= (extract-timestamp (TimeValue $time-stamp $atom)) $time-stamp)
