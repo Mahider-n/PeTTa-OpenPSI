@@ -1,10 +1,3 @@
-;!(register-module! ../../../../../hyperon-openpsi)
-;!(register-module! ../../../../utilities-module)
-;!(import! &self hyperon-openpsi:main:rules:rule)
-;!(import! &self hyperon-openpsi:psi-utilities:psi_utils)
-;!(import! &self utilities-module:utils)
-;!(import! &self ../../perception-updater/perception-updater)
-;!(import! &self ../../../../psi-utilities/psi_utils)
 
 !(import! &self ../monitor-changes)
 ;!(import! &self ../monitor-changes-helpers)
