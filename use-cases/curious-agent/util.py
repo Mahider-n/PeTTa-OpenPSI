@@ -187,6 +187,7 @@ def summarize_conversation(state: AgentState) -> AgentState:
     ]
 
     response = summarization_model.invoke(messages)
+    print("summary_request", response.content)
     delete_messages = [RemoveMessage(id=message.id) for message in messages[:-2]]
     return {"summary": response.content, "messages": delete_messages}
 
@@ -338,6 +339,11 @@ def generateResponse(user_input: str, emotion_vals: str):
     return response
 
 
+def extractVal(key, response):
+    print("res result", key)
+    return response[key]
+
+
 def pyModule(metta: MeTTa, name: Atom, *args: Atom):
     payload_expression: ExpressionAtom = args[0]
     actual_arg_atoms = payload_expression.get_children()
@@ -405,7 +411,7 @@ Each rule follows this strict format:
 Where:
 - {{handle}} is the symbolic name for the rule (e.g., r1)
 - {{tv}} is the truth value format, e.g., (TTV 1 (STV 0.8 0.7))
-- {{context}} is a Goal expression that defines the context (e.g., (Goal Conversation-Started 0.9 0.6))
+- {{context}} is a singular Goal expression that defines the context (e.g., (Goal Conversation-Started 0.9 0.6))
 - {{action}} is the action to take (e.g., initiate-dialogue)
 - {{goal}} is the target Goal of the implication (e.g., (Goal Send-Greeting 1.0 1.0))
 - {{weight}} is a number between 0 and 2 indicating the rule's strength
@@ -498,7 +504,6 @@ def correlation_matcher(conversation_summary: str, rules: list[str], userRespons
     and returns the most relevant validated rule as a Schema object.
     Returns None if no valid rule is found.
     """
-    print("INPUTS", conversation_summary, rules, userResponse)
     correlated_schema_list = correlate(
         conversation_summary=conversation_summary,
         rules_list=rules,
@@ -506,6 +511,8 @@ def correlation_matcher(conversation_summary: str, rules: list[str], userRespons
     )
     print("CORELATED SCHEMA", correlated_schema_list)
     rules_list = [parse_schema(schema) for schema in correlated_schema_list]
+    print("First Element", correlated_schema_list[0])
+    return correlated_schema_list[0].context
 
     for rule_string in rules_list:
         print("RULE", rule_string)

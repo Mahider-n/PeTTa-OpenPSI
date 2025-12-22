@@ -287,11 +287,11 @@
     (let* (
         
         ($targetRules (findRulesWithGoal $ruleSpace $goal))
-        ($_ (println! (targetRules $targetRules)))
+        ; ($_ (println! (targetRules $targetRules)))
         ($targetRules (if (== $targetRules ()) (()) $targetRules))
         ($targetRule (car-atom $targetRules))
         ($target (getWeightFromRule $targetRule))
-        ($_ (println! (targetRules $targetRules target $target)))
+        ; ($_ (println! (targetRules $targetRules target $target)))
         
     )
         (planner' $ruleSpace $initState $goal $target ())

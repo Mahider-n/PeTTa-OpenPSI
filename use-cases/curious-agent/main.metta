@@ -21,14 +21,10 @@
 (= (computeEmotionVals $userInput $emotionVals) 
    (let* (
         ($response (py-call (util.generateResponse $userInput $emotionVals)))
-        ($summary (extractSummary $response))
+        ($summary (py-call (util.extractVal summary $response)))
         ($rules (collapse (get-atoms &ruleSpace)))
-        ($rule (py-call (util.correlation_matcher $summary $rules $userInput)))
-        ($_ (println! (MATCHED RULE $rule)))
-        (((: $handle ($tv (IMPLICATION_LINK (AND_LINK (((Goal $context $x $y)) $action)) $goal))) $wght) $rule)
-        ($_ (println! (CONTEXT -> $context)))
+        ($context (py-call (util.correlation_matcher $summary $rules $userInput)))
         ($emotion (psi-agent-loop $context &kb))
-        ($_ (println! (EMOTION VALUES $emotion)))
       )
      $emotion
     )
@@ -42,7 +38,7 @@
             )
             (if (== $userInput "exit")
               Goodbye!
-              (let $updatedEmotionVals (computeEmotionVals $userInput $emotionValStr) (println! (UPDATED_VALS $updatedEmotionVals)))
+              (let $updatedEmotionVals (computeEmotionVals $userInput $emotionValStr) (mainLoop $updatedEmotionVals))
             )
       )
    )
@@ -63,15 +59,6 @@
       )
    )
 
-;; (interactive mode removed)
-
-(= (extractSummary $response) 
-   (let* (
-          ($summary (py-call (getattr $response summary "")))
-        )
-        $summary
-     )
-   )
 
 ;; Startup function to choose input mode
 (= (startCuriousAgent $emotionVals)
@@ -95,4 +82,4 @@
 !(collapse (insert-modulators &modulator-space))
 !(kb-initializer &kb)
 
-!(psi-agent-loop Acknowledge-Greeting &kb)
+!(mainLoop (happinessValue 0.5 sadnessValue 0.039 angerValue 0.5 fearValue 0.04 gratitudeValue 0.6))
