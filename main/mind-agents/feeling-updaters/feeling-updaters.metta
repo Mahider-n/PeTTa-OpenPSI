@@ -1,4 +1,6 @@
-!(import! &self ../../../modulator/modulator)
+; !(import! &self ../../../modulator/modulator)
+!(import! &self ../../main/modulator/modulator)
+!(import! &self ../../psi-utilities/psi_utils)
 
 ; Feeling updaters
 ; How emotions emerge from the system?
@@ -83,13 +85,13 @@
 (= (modulator_extremely_high_indicator) 2)
 (= (modulator_undefined_indicator) 3)
 (= (get_pleasure_value) 0.5)
-;; (= (sum $list)
-;;     (let* (
-;;         ($acc (foldl-atom $list 0 $acc $x (+ $acc $x))) 
-;;     )
-;;     $acc
-;;     )
-;; )
+(= (sum $list)
+    (let* (
+        ($acc (foldl-atom $list 0 $acc $x (+ $acc $x))) 
+    )
+    $acc
+    )
+)
 ; Map a modulator to corresponding feeling dimension
 ; indicator equals to -2 means extremely low, -1 low, 0 medium, 1 high, 2 extremely high,
 ; others not defined (would return 0) 
