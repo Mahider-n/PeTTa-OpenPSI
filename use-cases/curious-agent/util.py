@@ -187,7 +187,6 @@ def summarize_conversation(state: AgentState) -> AgentState:
     ]
 
     response = summarization_model.invoke(messages)
-    print("summary_request", response.content)
     delete_messages = [RemoveMessage(id=message.id) for message in messages[:-2]]
     return {"summary": response.content, "messages": delete_messages}
 
@@ -340,7 +339,6 @@ def generateResponse(user_input: str, emotion_vals: str):
 
 
 def extractVal(key, response):
-    print("res result", key)
     return response[key]
 
 
@@ -473,7 +471,7 @@ def correlate(
         },
         config=config,
     )
-    print(response.get("rule_list"))
+    # print(response.get("rule_list"))
 
     return response.get("rules_list", [])
 
@@ -509,17 +507,12 @@ def correlation_matcher(conversation_summary: str, rules: list[str], userRespons
         rules_list=rules,
         userResponse=userResponse,
     )
-    print("CORELATED SCHEMA", correlated_schema_list)
     rules_list = [parse_schema(schema) for schema in correlated_schema_list]
-    print("First Element", correlated_schema_list[0])
-    return correlated_schema_list[0].context
 
-    for rule_string in rules_list:
-        print("RULE", rule_string)
+    for i, rule_string in enumerate(rules_list):
         if validateSyntax(rule_string):
             # if rule_string in rule_list: TODO: enforce this later with the existence validator.
-            print("SELECTED RULE", rule_string)
-            return rule_string
+            return correlated_schema_list[i].context
 
     # Return None if no valid rule is found after checking all selected rules
     return ""

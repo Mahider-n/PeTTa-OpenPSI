@@ -1,6 +1,5 @@
 
 !(import! &self ../../../modulator/modulator)
-!(import! &self ../../modulator-updater/modulator-updater)
 !(import! &self modulator-updater-test-helpers)
 
 ; !(import! &self ../../../../utils)
@@ -8,13 +7,20 @@
 ; !(import! &self ../../../demands/demands)
 ; !(import! &self ../../../../psi-utilities/normalization)
 
-!(bind! &demandspace (new-space))
-!(bind! &modulator-space (new-space))
+(= (populateDemandSpace $demandspace) 
+   (let $demand (superpose 
+      (
+        (demand affiliation 0.5 0.6 0.5)
+        (demand energy      0.4 0.7 0.6)
+        (demand competence  0.3 0.5 0.2)
+        )
+      )
+     (add-atom $demandspace $demand)
+    )
+   )
 
-!(addDemand &demandspace energy 0.6)
-!(addDemand &demandspace affiliation 0.5)
-!(addDemand &demandspace competence 0.2)
-; !(get-atoms &demandspace)
+!(collapse (populateDemandSpace &demandspace))
+!(get-atoms &demandspace)
 
 !(insert-modulators &modulator-space)
 
@@ -25,5 +31,5 @@
 !(test (compareModulatorValues (modulator arousal 0.5) (modulator arousal 0.5)) True)
 !(test (compareModulatorValues (modulator selection-threshold 0.5) (modulator arousal 0.5)) False)
 !(test (compareModulatorValues (modulator arousal 0.4) (modulator arousal 0.5)) False)
-!(test (compareModulators &modulator-space &demandspace) True)
-; !(compareModulators &modulator-space &demandspace)
+; !(let $res (compareModulators &modulator-space &demandspace) (println! (res $res))) 
+!(compareModulators &modulator-space &demandspace)

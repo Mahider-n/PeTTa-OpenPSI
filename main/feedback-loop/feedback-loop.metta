@@ -321,7 +321,7 @@
 		($affiliationDemand (getDemandByName &demandspace affiliation))
 		($energyDemand (getDemandByName &demandspace energy))
 		      ; ($_ (println! (demandValues $competenceDemand $affiliationDemand $energyDemand)))
-		($modUpdate (modulatorUpdaterAgent &modulator-space $competenceDemand $affiliationDemand $energyDemand))
+		($_ (modulatorUpdaterAgent &modulator-space $competenceDemand $affiliationDemand $energyDemand))
 
 		      ; ($_ (println! (modUpdate $modUpdate modulatorValues (collapse (get-atoms &modulator-space))))) 
 		($happinessValue (happinessFeelingUpdater &modulator-space))

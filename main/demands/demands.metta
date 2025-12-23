@@ -138,16 +138,15 @@
     let* (
         ((demand $demandName $minVal $maxVal $currentValue) (fetchDemand $space $demandName))
         ($alpha (alpha))
-    ) (if (and (>= $currentValue $minVal) (<= $currentValue $maxVal))
-        ; (+ 0.8 (* 0.2 (py-call (random.choice (0 1)))))
-        (+ 0.8 (* 0.2 1))
+    ) (if (not (and (< $currentValue $minVal) (> $currentValue $maxVal)))
+        (+ 0.8 (* 0.2 (py-call (random.uniform 0 1))))
         (if (< $currentValue $minVal)
             (fuzzy_equal $currentValue $minVal $alpha)
-            ; (+ 0.9 (* 0.1 (py-call (random.choice (0 1)))))
-            (+ 0.9 (* 0.1 0))
+            (+ 0.9 (* 0.1 (py-call (random.uniform 0 1))))
         )
     )
 ))
+
 (= (checkEmpty $l) (if (== $l ()) true false))
 
 ;; Function to fetch the least satisfied demand from a list of demands

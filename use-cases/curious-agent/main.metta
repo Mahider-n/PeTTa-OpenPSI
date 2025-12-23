@@ -1,6 +1,8 @@
 !(import! &self ../../main/feedback-loop/feedback-loop)
+!(import! &self ../../main/demands/demands)
 !(import! &self ../curious-agent/setup-kb)
 !(import! &self "./util.py")
+
 
 ; ;; This function implements the kb-initializer for the open-psi loop to work
 (= (kb-initializer $kb)
@@ -9,7 +11,6 @@
       ($rules (collapse (get-atoms &ruleSpace)))
       ($modulators (collapse (get-atoms &modulator-space)))
       ($demands (collapse (get-atoms &demandspace)))
-      ($_ (println! (demands in kb init $demands)))
       ($partialKb (union-atom $rules $modulators))
       ($kbExp (union-atom $partialKb $demands))
       ($_ (collapse (let $atom (superpose $kbExp) (add-atom $kb $atom))))
@@ -83,3 +84,4 @@
 !(kb-initializer &kb)
 
 !(mainLoop (happinessValue 0.5 sadnessValue 0.039 angerValue 0.5 fearValue 0.04 gratitudeValue 0.6))
+

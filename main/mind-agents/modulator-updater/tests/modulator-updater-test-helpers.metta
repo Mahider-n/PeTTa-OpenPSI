@@ -1,4 +1,5 @@
 !(import! &self ../../../demands/demands)
+!(import! &self ../../modulator-updater/modulator-updater)
 
 ; (: compareModulatorValues (-> Modulator Modulator Bool))
 (=(compareModulatorValues (modulator $x $y) (modulator $x' $y'))
@@ -7,7 +8,7 @@
 (= (not-eq $at-1 $at-2)
     (== (== $at-1 $at-2) False))
 
-(: all (-> Expression Bool))
+; (: all (-> Expression Bool))
 ; (= (all $expressions) (if (isMember False $expressions) False True))
 (= (all ($a $b $c))
    (and $a (and $b $c)))
@@ -15,7 +16,6 @@
 
 
 ;; Implementation of the dataset 
-; (: compareModulators (-> hyperon::space::DynSpace hyperon::space::DynSpace Bool))
 (= (compareModulators $modulatorSpace $demandSpace)
     (let* (
         ($activation (fetch-modulator $modulatorSpace arousal))
