@@ -1,4 +1,4 @@
-;;!(import! &self ../../../psi-utilities/psi_utils)
+!(import! &self ../../../psi-utilities/psi_utils)
 !(import! &self ../demands)
 
 !(bind! &demandSpace (new-space))

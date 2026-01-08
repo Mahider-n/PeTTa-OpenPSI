@@ -2,8 +2,13 @@
 (: SkipDemand Type)
 ; (: demand (-> Symbol Number Demand))
 (: skip (-> Symbol SkipDemand))
+
+
+(: alpha (-> Number))
+(= (alpha) 150)
+
 !(bind! &demandspace (new-space))
-; (: addDemand (-> hyperon::space::DynSpace Symbol Number Demand))
+
 (= (addDemand $space $name $value)
     (let* (
             ($demand (demand $name $value))
@@ -14,16 +19,24 @@
     )
     )
 
-(= (fetch-demand $space $name)
-    (match $space (demand $name $x) (demand $name $x))
-)
+(= (fetchDemand $space $name) (
+    match $space (demand $name $min $max $val) (demand $name $min $max $val)
+))
 
-(= (fetch-demand-val $space $name)
-    (let ($x $y $z) (fetch-demand $space $name) $z)
-)
+(= (fetchDemandVal $space $name) (
+    let (demand $n $min $max $val) (fetchDemand $space $name) $val
+))
+
+(= (fetchDemandMinVal $space $name) (
+    let (demand $n $min $max $val) (fetchDemand $space $name) $min
+))
+
+(= (fetchDemandMaxVal $space $name) (
+    let (demand $n $min $max $val) (fetchDemand $space $name) $max
+))
 
 (= (getAllDemands $space)
-    (collapse (match $space (demand $x $_) (demand $x $_)))
+    (collapse (match $space (demand $x $min $max $val) (demand $x $min $max $val)))
 )
 
 
@@ -41,7 +54,7 @@
 
 (= (getEnabledDemands $space)
     (let* (
-       ( $skippedDemands (collapse (match $space (, (demand $x $_) (skip $x)) (demand $x $_)) ))
+       ( $skippedDemands (collapse (match $space (, (demand $x $min $max $val) (skip $x)) (demand $x $min $max $val)) ))
     
        ( $allDemands (getAllDemands $space))
     
@@ -62,71 +75,105 @@
     )
 
 )
-(= (getDemandByName $space $name) (match $space (demand $name $x) (demand $name $x)))
+(= (getDemandByName $space $name) (match $space (demand $name $min $max $x) (demand $name $min $max $x)))
+
 
 
 (= (demandDecay $space $demand $value)
     (let* (
-        ($oldValue  (match $space (demand $demand $oldValue) $oldValue))
+        ((demand $name $min $max $oldValue) $demand)
         ($newValue (- $oldValue $value))
     )
     (if (>= $newValue 0)
-        (setDemandValue $space $demand $newValue)
-        (let* (($demandAtom (match $space (demand $demand $oldValue) (demand $demand $oldValue)))
-                ($_ (remove-atom $space $demandAtom))
-                )
-        (
-            (remove-atom $space (skip $demand))
+        (updateDemandValue $space $name $newValue)
+        (let* (
+            (() (remove-atom $space $demand))
+            (() (remove-atom $space (skip $name)))
+        ) ()
         )
-    )
     )
 ))
 
-; New function to apply decay only to skipped demands
+; Apply decay only to skipped demands
 (= (decaySkippedDemands $space $decayValue)
     (let* (
         ($skippedDemandNames (collapse (match $space (skip $x) $x)))
-        ($skippedDemands (collapse (match $space (demand $x $value) (demand $x $value))))
+        ($skippedDemands (collapse (let $demandName (superpose $skippedDemandNames) (fetchDemand $space $demandName))))
     )
-    (if (== (size-atom $skippedDemands) 0 )
-        (There is no skipped demand) 
-        (demandDecay $space (superpose $skippedDemandNames) $decayValue)
+    (if (== (size-atom $skippedDemands) 0)
+        (There are no skipped demands) 
+        (demandDecay $space (superpose $skippedDemands) $decayValue)
     ))
 )
-; New function to apply decay to all demands (both enabled and skipped)
+
+; Apply decay to all demands (both enabled and skipped)
 (= (decayAllDemands $space $decayValue)
     (let* (
         ($allDemands (getAllDemands $space))
-        ($demandNames (collapse (match $space (demand $x $_) $x)))
     )
-    (if (== (length $allDemands) 0 )
+    (if (== (size-atom $allDemands) 0)
         (No demands in the space)
-        (demandDecay $space (superpose $demandNames) $decayValue)
+        (let $demand (superpose $allDemands) (demandDecay $space $demand $decayValue))
     ))
 )
 
-; New function to apply different decay rates to enabled vs skipped demands
+; Apply different decay rates to enabled vs skipped demands
 (= (decayDemandsWithDifferentRates $space $enabledDecayRate $skippedDecayRate)
     (let* (
         ($enabledDemandNames (getEnabledDemands $space))
-        ($enabledDemands (collapse (unify $enabledDemandNames (demand $x $_) $x ())))
-        ($skippedDemandNames (collapse (match $space (skip $x) $x)))
+        ($enabledDemands (collapse (unify $enabledDemandNames (demand $name $minVal $maxVal $val) $name ())))
+        ($skippedDemandNames (collapse (match $space (skip $name) $name)))
         ($_ (decaySkippedDemands $space $skippedDecayRate))
     )
-    (if (== (length $enabledDemands) 0)
+    (if (== (size-atom $enabledDemands) 0)
         (There is no skipped demand)
         (demandDecay $space (superpose $enabledDemands) $enabledDecayRate)
-
     ))
 )
 
-(= (exists-In $space $item)
-  (let $atoms (collapse (get-atoms $space)) (if (isMember $item $atoms) True False))
-)
-(= (isMember $instance $list)
-  (if (== $list ())
-    False
-    (let ($head $tail) (decons-atom $list) (if (== $head $instance) True (isMember $instance $tail)))
-  )
-)
 
+;; Function to calculate demand satisfaction according to Ben's Paper
+;; Requires random function which should be imported from utils
+(= (calculateDemandSatisfaction $space $demandName) (
+    let* (
+        ((demand $demandName $minVal $maxVal $currentValue) (fetchDemand $space $demandName))
+        ($alpha (alpha))
+    ) (if (not (and (< $currentValue $minVal) (> $currentValue $maxVal)))
+        (+ 0.8 (* 0.2 (py-call (random.uniform 0 1))))
+        (if (< $currentValue $minVal)
+            (fuzzy_equal $currentValue $minVal $alpha)
+            (+ 0.9 (* 0.1 (py-call (random.uniform 0 1))))
+        )
+    )
+))
+
+(= (checkEmpty $l) (if (== $l ()) true false))
+
+;; Function to fetch the least satisfied demand from a list of demands
+(= (fetchLeastSatisfiedDemand' $space $demands $leastSatisfiedDemand)
+    (if (== $demands ())
+        $leastSatisfiedDemand
+        (let* (
+            (($currentDemand $restDemands) (decons-atom $demands))
+            ((demand $currentName $currentMin $currentMax $currentValue) $currentDemand)
+            ((demand $leastName $leastMin $leastMax $leastValue) $leastSatisfiedDemand)
+            ($currentSatisfaction (calculateDemandSatisfaction $space $currentName))
+            ($leastSatisfaction (calculateDemandSatisfaction $space $leastName))
+        )
+        (if (< $currentSatisfaction $leastSatisfaction)
+            (fetchLeastSatisfiedDemand' $space $restDemands $currentDemand)
+            (fetchLeastSatisfiedDemand' $space $restDemands $leastSatisfiedDemand)
+        )
+    )
+))
+
+;; Function to fetch the least satisfied demand
+(= (fetchLeastSatisfiedDemand $space) (
+    let* (
+        ($activeDemands (getEnabledDemands $space))
+        ($leastSatisfiedDemand (car-atom $activeDemands))
+    ) (if (== $activeDemands ())
+        ("No active demands found")
+        (fetchLeastSatisfiedDemand' $space $activeDemands $leastSatisfiedDemand)
+    )
+))
