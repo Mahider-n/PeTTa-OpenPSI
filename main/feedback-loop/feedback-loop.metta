@@ -1,7 +1,8 @@
-!(import! &self ../../main/demands/demands)
-!(import! &self ../../main/mind-agents/action-planner/action-planner-v1)
-!(import! &self ../../main/mind-agents/feeling-updaters/feeling-updaters)
-!(import! &self ../../main/mind-agents/modulator-updater/modulator-updater)
+
+!(bind! &kb (new-space))
+!(bind! &modulator-space (new-space))
+!(bind! &demandspace (new-space))
+
 
 (= (remove-atoms' $space $expression)
     (if (== $expression ())
@@ -97,7 +98,7 @@
 
 
 
-(: demandSelector' (-> Expression Number Demand))
+; (: demandSelector' (-> Expression Number Demand))
 (= (demandSelector' $demands $maxDemand)
    	(if (== $demands ()) 
 	  	$maxDemand
@@ -157,7 +158,7 @@
 		)))
 ; A non-deterministic implementation of demand selection refer 
 ;; OpenPsi: A Novel Computational Affective Model and its Application in Video Games by Goertzel,Ben et. al (2013)
-(: selectDemand (-> Expression Expression))
+; (: selectDemand (-> Expression Expression))
 (= (selectDemand $demands)
    (let* (
 	  ($selectionVal (fetch-modulator-val &modulator-space selection-threshold))
@@ -176,12 +177,12 @@
 ;;How are we going to solve the problem?
 ;;(: $handle ((TTV $time (STV $bel $conf)) (IMPLICATION_LINK (AND_LINK ($context $action)) $goal)))
 ;; we  can write a function that selects rules based on actions, then we can take the function that has the biggest heuristic
-(: selectRuleByAction (-> Grounded Symbol Expression)) 
+; (: selectRuleByAction (-> Grounded Symbol Expression)) 
 (= (selectRuleByAction $ruleSpace $action)
    	(collapse (match $ruleSpace ((:$handle ((TTV $time (STV $bel $conf)) (IMPLICATION_LINK (AND_LINK ($context $action)) $goal))) $val) ((: $handle ((TTV $time (STV $bel $conf)) (IMPLICATION_LINK (AND_LINK ($context $action)) $goal))) $val))))
 
 ;; A temporary selector of rules which are selected based on having the same actions. 
-(: selectMaxRule (-> Expression Expression Expression))
+; (: selectMaxRule (-> Expression Expression Expression))
 (= (selectMaxRule $rules $maxRule)
    	(if (== $rules ())
 	  $maxRule
@@ -199,7 +200,7 @@
 	)))
 
 
-(: isGoalMet? (-> Expression Goal Bool))
+; (: isGoalMet? (-> Expression Goal Bool))
 (= (isGoalMet? $actions $goal)
 	(let* (
 	       ($length (size-atom $actions))
@@ -213,7 +214,7 @@
 
 
 
-(:isGoalMet' (-> Expression Goal Bool))
+; (:isGoalMet' (-> Expression Goal Bool))
 (= (isGoalMet' $rules $goal)
    	(if (== $rules ())
 		False
@@ -235,7 +236,7 @@
 ;; How would this function work? how can I check whether the goal is met?
 ;; This function is used for a follow-up after the action-selection mind agent
 ;; is applied.
-(: isGoalMet? (-> Expression Goal Bool))
+; (: isGoalMet? (-> Expression Goal Bool))
 (= (isGoalMet? $actions $goal)
 	(let* (
 	       ($length (size-atom $actions))
@@ -249,7 +250,7 @@
 
 
 ;; This function updates the modulator values in the atomspace.
-(:update-modulator (-> Symbol Number Expression))
+; (:update-modulator (-> Symbol Number Expression))
 (= (update-modulator $modulatorName $modulatorValue)
 	(let* (
 	       ($modulator (fetch-modulator &modulator-space $modulatorName))
@@ -350,19 +351,4 @@
 (= (emotionChecker $emotion)
 	(unify $emotion (happinessValue $happinessValue sadnessValue $sadnessValue angerValue $angerValue fearValue $fearValue gratitudeValue $gratitude) True False)
 )
-;;!(kb-initializer &kb)
-; !(assertEqual (kb-initializer &kb) ())
-; !(assertEqual (isListEmpty (queryAll &kb modulator)) False)
-; !(assertEqual (isListEmpty (queryAll &kb rule)) False)
-; !(assertEqual (isListEmpty (queryAll &kb demand)) False)
-; !(assertEqual (isGoalMet? (report) (Goal mission_complete 1.0 1.0)) True)
-; !(assertEqual (isGoalMet? (analyze upload) (Goal analyze_data 1 1)) False)
-; !(assertEqual (emotionChecker (psi-agent-loop init &kb)) True)
-; !(assertEqual (demandSelector ((demand Affiliation 3) (demand Concept 4) (demand Car 8))) (demand Car 8))
-;; !(psi-agent-loop init &kb)
-
-
-;; !(fearFeelingUpdater &modulator-space)
-;; !(happinessFeelingUpdater &modulator-space)
-
-;; !(get-atoms &modulator-space)
+ 
