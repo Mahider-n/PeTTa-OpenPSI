@@ -1,0 +1,10 @@
+*.log
+**/__pycache__
+**/env
+**/testting
+/venv
+/.env
+.env
+.devcontainer
+
+__init__.py
