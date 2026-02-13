@@ -2,33 +2,42 @@
 
 !(import! &self "main.py") ;; Make sure path points to the logger file
 
+;log-event wrapper 
+; for payloads with 3 items (all handled event types use 3)
+(= (log-event $type ($arg1 $arg2 $arg3))
+   (py-call (main.log_event $type $arg1 $arg2 $arg3))
+)
+
+; for payloads with 2 items (like the unknown_event example)
+(= (log-event $type ($arg1 $arg2))
+   (py-call (main.log_event $type $arg1 $arg2))
+)
+
 ;; --- Existing Wrappers ---
 (= (log-modulator $name $old-value $new-value)
-   (py-call (main.format_modulator_change $name $old-value $new-value))
+   (log-event modulator_change ($name $old-value $new-value))
 )
 (= (log-modulator-debug $name $old-value $new-value)
-   (py-call (main.format_modulator_change $name $old-value $new-value))
+   (log-event modulator_debug ($name $old-value $new-value))
 )
 
 ;; --- NEW PSI Wrappers ---
 (= (log-feeling $feeling-name $old-value $new-value)
    ;; Uses the "feeling_update" event type (INFO level by default)
-   (py-call (main.format_feeling_update $feeling-name $old-value $new-value))
+   (log-event feeling_update ($feeling-name $old-value $new-value))
 )
 
 (= (log-feeling-debug $feeling-name $old-value $new-value)
    ;; Uses the "feeling_update_debug" event type (DEBUG level by default)
-   (py-call (main.format_feeling_update $feeling-name $old-value $new-value))
+   (log-event feeling_update_debug ($feeling-name $old-value $new-value))
 )
 
 (= (log-schema $schema-id $update-type $details)
    ;; Uses the "schema_update" event type (DEBUG level by default)
    ;; Note: $details should resolve to a symbol or string-like atom
-   (py-call (main.format_schema_update $schema-id $update-type $details))
+   (log-event schema_update ($schema-id $update-type $details))
+
 )
-
-
-;; --- Example Usage ---
 
 ;; Existing examples
 !(log-modulator Volume 0.5 0.75)
