@@ -3,12 +3,7 @@ import sys
 from hyperon import *
 from hyperon.ext import register_atoms
 from hyperon.atoms import SymbolAtom, ValueAtom, ExpressionAtom
-
-LOG_FILE_NAME = 'metta_events.log'
-LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-CONSOLE_LOG_LEVEL = logging.DEBUG
-FILE_LOG_LEVEL = logging.INFO
-LOGGER_NAME = 'MeTTaLogger'
+from config import LOG_FILE_NAME, LOG_FORMAT, CONSOLE_LOG_LEVEL, FILE_LOG_LEVEL, LOGGER_NAME
 
 logger = logging.getLogger(LOGGER_NAME)
 logger.setLevel(logging.DEBUG)
