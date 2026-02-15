@@ -136,4 +136,4 @@ def preprocess_llm_response(raw_data: str, current_rule_id: int) -> str:
             valid_schemas.append(schema_str)
             current_rule_id += 1
 
-    return "(" + " ".join(valid_schemas) + ")"
+    return valid_schemas

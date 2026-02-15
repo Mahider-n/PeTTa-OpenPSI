@@ -1,4 +1,3 @@
-; (: addPerceptions (-> hyperon::space::DynSpace Expression (->)))
 (= (addPerceptions $space $perceptions)
     (if (== $perceptions ())
         ()
@@ -6,7 +5,6 @@
     )
 )
 
-; (: miner (-> hyperon::space::DynSpace Number Expression))
 (= (miner $perceptaSpace $noOfRules)
     (let* (
           ($perceptaList (collapse (get-atoms $perceptaSpace)))
@@ -15,3 +13,4 @@
         )
       $query
 ))
+

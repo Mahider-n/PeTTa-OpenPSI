@@ -3,6 +3,7 @@
 
 ;;test
 !(bind! &perceptaSpace (new-space))
+!(bind! &testspace (new-space))
 
 ;; Add perceptions to the percepta space
 !(addPerceptions &perceptaSpace (
@@ -21,4 +22,15 @@
 
 !(miner &perceptaSpace 10)
 
+;test structure of first generted rule 
  
+!(let* (
+         ($rules (miner &perceptaSpace 10))               
+         ($first-rule (car-atom $rules))  
+         ($fin (collapse ($first-rule)))                
+       )
+  (add-atom &testspace $fin)
+)
+!(get-atoms &testspace)
+; test that 10 rules are generated
+!(test (size-atom (miner &perceptaSpace 10)) 10) 
