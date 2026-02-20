@@ -1,0 +1,1 @@
+;; Predictive Implication Direct Introduction
