@@ -2,7 +2,7 @@
 !(import! &self utils)
 !(import! &self world)
 !(import! &self planner)
-!(import! &self planner-utils)
+;;!(import! &self planner-utils)
 !(import! &self schemas)
 !(import! &self ruleSampler)
 
@@ -17,14 +17,19 @@
 !(import! &self pln/rule/inference-utils)
 !(import! &self pln/rule/helpers)
 
+!(import! &self nars/inference/nars-reasoning)
+;;!(import! &self)
+
 ;; Main Entry Point
-(= (loop $contexts $money $ruleSpace $depth) (
+(= (gameLoop $reasoner $contexts $money $ruleSpace $depth) (
     (if (== $depth 0)
-        (println! "Reached max depth")
+        ;;(println! "Reached max depth")
+        (final money: $money)
         (let* (
             ($rules (collapse (get-atoms $ruleSpace)))
             ($sampledRules (ruleSampler $rules 3))
-            ($reasonedRules (pln-reasoning $sampledRules))
+            ($_ (println! (sampledRules $sampledRules)))
+            ($reasonedRules ($reasoner $sampledRules))
 
             ($_ (collapse (let $rule (superpose $reasonedRules) (add-atom $ruleSpace $rule))))
             ($combinedRules (collapse (get-atoms $ruleSpace)))
@@ -45,11 +50,11 @@
             ($_ (println! (Money: $newMoney)))
             ($_ (collapse (updateAtom $selectedRule $updatedRule $ruleSpace)))
         )
-    (loop $newContexts $newMoney $ruleSpace (- $depth 1))))
+    (gameLoop $reasoner $newContexts $newMoney $ruleSpace (- $depth 1))))
 ))
 
 !("Loop Started")
 !(bind! &ruleSpace (new-space))
 !(initializeSpace &ruleSpace)
 
-!(loop (((PLANET A) (STV 0.2 0.1))) 500 &ruleSpace 300)
+!(gameLoop nars-reasoning (((PLANET A) (STV 0.2 0.1))) 500 &ruleSpace 300)

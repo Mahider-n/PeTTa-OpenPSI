@@ -2,7 +2,7 @@
    (if (= $a $b)
        (eval $then)
        (eval $else)))
-       
+
 (= (extractRule $section $rule) (
     case $section (
         (Id (extractRuleId $rule))
@@ -22,14 +22,14 @@
     )
 ))
 
-; (: extractRuleId (-> Expression Number))
+
 (= (extractRuleId $rule) (
     unify (: Rule $id $ttv $stv $complexity $implication) $rule
         $id
         -1
 ))
 
-; (: extractRuleTTV (-> Expression Number))
+
 (= (extractRuleTTV $rule) (
     unify (: Rule $id (TTV $ttv) $stv $complexity $implication) $rule
         $ttv
@@ -40,11 +40,11 @@
     unify (: Rule $id $ttv $stv $complexity (IMPLICATION (AND (Context $context-stv (AND $context)) $action) $goal))
       $rule
       $context
-      empty         
+      empty        
 ))
 
 (= (extractRuleContextValues $rule) (
-    let $contexts (extractRuleContext $rule) (map-atom $contexts $context ((index-atom $context 0) (index-atom $context 1)))
+    let $contexts (extractRuleContext $rule) (map-atom $contexts $context (car-atom $context))
 ))
 
 (= (extractRuleAction $rule) (
@@ -60,7 +60,7 @@
 ))
 
 (= (extractRuleGoalValues $rule) (
-    let $goals (extractRuleGoal $rule) (map-atom $goals $goal ((index-atom $goal 0) (index-atom $goal 1)))
+    let $goals (eval (extractRuleGoal $rule)) (map-atom $goals $goal (car-atom $goal))
 ))
 
 (= (extractRuleSTV $rule) (
@@ -97,34 +97,4 @@
     unify (: Rule $id $ttv $stv $complexity (IMPLICATION (AND $context $action) $goal)) $rule
         $context
         empty
-))
-
-;; General Rule helpers
-
-;; For now complexity is the number of actions in the rule
-
-; (= (calculateComplexity $rule) (
-;     let* (
-;         ($action (extractRuleAction $rule))
-;         ($actionCount (size-atom $action))
-;     ) $actionCount
-; ))
-
-;; This could be optimized by adding an atom that tracks the max TTV in the rule space instead of searching every time
-
-(= (findCurrentTTV $ruleSpace) (
-    let* (
-        ($rules (collapse (get-atoms $ruleSpace)))
-        ($ttvValues (map-atom $rules $rule (extractRule TTV $rule)))
-        ($_ (println! ("Current TTV values: " $ttvValues)))
-    ) (max-atom $ttvValues) ;; For some reason max-atom returns a float instead of int
-))
-
-
-(= (findCurrentRuleId $ruleSpace) (
-    let* (
-        ($rules (collapse (get-atoms $ruleSpace)))
-        ($ruleIds (map-atom $rules $rule (extractRule Id $rule)))
-        ($_ (println! ("Current Rule IDs: " $ruleIds)))
-    ) (max-atom $ruleIds)
 ))
