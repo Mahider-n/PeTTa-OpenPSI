@@ -16,9 +16,11 @@
 
 !(import! &self pln/rule/inference-utils)
 !(import! &self pln/rule/helpers)
-
+!(import! &self nars/inference/converter)
+!(import! &self nars/inference/inference-rules)
+!(import! &self nars/inference/reasoning-helper)
 !(import! &self nars/inference/nars-reasoning)
-;;!(import! &self)
+
 
 ;; Main Entry Point
 (= (gameLoop $reasoner $contexts $money $ruleSpace $depth) (
