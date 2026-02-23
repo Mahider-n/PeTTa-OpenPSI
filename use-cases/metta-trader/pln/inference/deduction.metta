@@ -14,7 +14,7 @@
             ($premise-two (eval (extractRule GoalSTV $rule)))
             ($premise-four (eval (extractRule STV $rule)))
             ($premises ($premise-one $premise-two $premise-four))
-            ; ($_ (println! ("Deduction premises: " $premise-one $premise-two $premise-four)))
+            ($_ (println! ("Deduction premises: " $premise-one $premise-two $premise-four)))
             ($matchingRuleDeductions (eval (getMatchingPremises deduction $premises $rule $remRules)))
             ($restDeductions (deduction-helper $remRules))
         ) (union-atom $restDeductions $matchingRuleDeductions))

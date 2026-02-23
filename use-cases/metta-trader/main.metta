@@ -23,17 +23,19 @@
 !(import! &self nars/inference/nars-reasoning)
 
 ;; Main Entry Point
-(= (gameLoop $reasoner $contexts $money $ruleSpace $depth) 
+(= (gameLoop $reasoner $contexts $money $ruleSpace $depth $accum) 
     (if (== $depth 0)
         ;;(println! "Reached max depth")
-        (final money: $money)
+        ;;(final money: $money)
+        $accum
         (let* (
             ($_ (println! (depth $depth)))
             ($rules (collapse (get-atoms $ruleSpace)))
             ($sampledRules (ruleSampler $rules 3))
             ($_ (println! (sampledRules $sampledRules)))
+            ($_ (println! (reasoning started)))
             ($reasonedRules ($reasoner $sampledRules))
-
+            ($_ (println! (reasonedRules $reasonedRules)))
             ($_ (collapse (let $rule (superpose $reasonedRules) (add-atom $ruleSpace $rule))))
             ;;($_ (add-atoms $ruleSpace $reasonedRules))
             ($combinedRules (collapse (get-atoms $ruleSpace)))
@@ -53,12 +55,30 @@
             ($updatedRule (updateRule $selectedRule $reward))
             ($_ (println! (Money: $newMoney)))
             ($_ (collapse (updateAtom $selectedRule $updatedRule $ruleSpace)))
+            ($newAccum (union-atom $accum ($newMoney)))
         )
-    (gameLoop $reasoner $newContexts $newMoney $ruleSpace (- $depth 1))))
+    (gameLoop $reasoner $newContexts $newMoney $ruleSpace (- $depth 1) $newAccum)))
 )
 
 !("Loop Started")
 !(bind! &ruleSpace (new-space))
 !(initializeSpace &ruleSpace)
 
-!(gameLoop pln-reasoning (((PLANET A) (STV 0.2 0.1))) 500 &ruleSpace 300)
+!(gameLoop pln-reasoning (((PLANET A) (STV 0.2 0.1))) 500 &ruleSpace 300 (500))
+;;reasonedRules ((: Rule 23 (TTV 2) $_30344720 (Complexity 0) (IMPLICATION (AND $_30344756 (Action (SEQ_AND ()))) $_30344792))))
+;; (: Rule 2
+;;             (TTV 0)
+;;             (STV 0.5 0.002)
+;;             (Complexity 1)
+;;             (IMPLICATION
+;;                 (AND
+;;                     (Context (STV 0.2 0.1) (AND (
+;;                         ((PLANET A) (STV 0.2 0.1))
+;;                     )))
+;;                     (Action (SEQ_AND ((TRAVEL))))
+;;                 )
+;;                 (Goal (STV 0.2 0.1) (AND (
+;;                     ((PLANET C) (STV 0.2 0.1))
+;;                 )))
+;;         ))
+
