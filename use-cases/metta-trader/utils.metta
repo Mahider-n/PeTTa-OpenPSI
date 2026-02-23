@@ -237,12 +237,12 @@
         (($updatedAlpha $updatedBeta) (updateBeta $alpha $beta $reward))
         ;; ($updatedAlpha (round-float $resultAlpha 3))
         ;; ($updatedBeta (round-float $resultBeta 3))
-        ($threshold 15)
+        ($threshold 10)
         ($discountFactor (/ $threshold (+ 1 $threshold)))
         ($_ (println! (Updated Alpha: $updatedAlpha Updated Beta: $updatedBeta Discount Factor: $discountFactor)))
     ) (if (>= (+ $alpha $beta) $threshold)
-        ((random-float (* $updatedAlpha $discountFactor) 5) (random-float (* $updatedBeta $discountFactor) 5))
-        ((random-float $updatedAlpha 5)  (random-float $updatedBeta 5)))
+        ( (* $updatedAlpha $discountFactor)  (* $updatedBeta $discountFactor) )
+        ( $updatedAlpha   $updatedBeta ))
 ))
 
 (= (updateSTV $rule ($strength $confidence)) (

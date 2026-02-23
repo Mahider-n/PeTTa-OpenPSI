@@ -1,10 +1,5 @@
 ;; Deduction Formula
-;; (= (deductionFormula (STV $Ps $Pc) (STV $Qs $Qc) (STV $Rs $Rc) (STV $PQs $PQc) (STV $QRs $QRc)) (
-;;     STV (round-float (if (< 0.9999 $Qs) ; avoid division by 0
-;;                 $Rs
-;;                 (+ (* $PQs $QRs) (/ (* (- 1 $PQs) (- $Rs (* $Qs $QRs))) (- 1 $Qs)))) 3)
-;;             (round-float (min $Pc (min $Qc (min $Rc (min $PQc $QRc)))) 3)
-;; ))
+
 
 (= (deductionFormula (STV $Ps $Pc) (STV $Qs $Qc) (STV $Rs $Rc) (STV $PQs $PQc) (STV $QRs $QRc))
     (let* (
@@ -12,8 +7,8 @@
                 $Rs
                 (+ (* $PQs $QRs) (/ (* (- 1 $PQs) (- $Rs (* $Qs $QRs))) (- 1 $Qs)))))
         ($confidence (min $Pc (min $Qc (min $Rc (min $PQc $QRc)))))
-        ($roundedStrength (round-float $strength 5))
-        ($roundedConfidence (round-float $confidence 5))
+        ($roundedStrength (round-float $strength 7))
+        ($roundedConfidence (round-float $confidence 7))
 
     )
         (STV $roundedStrength $roundedConfidence)
@@ -30,8 +25,8 @@
         ($op1 (eval (/safe (* (* $sBA $sBC) $sB) $sA)))
         ($op2 (* (- 1 (eval (/safe (* $sBA $sB) $sA)))
                (eval (/safe (- $sC (* $sB $sBC)) (- 1 $sB)))))
-        ($strength (round-float (+ $op1 $op2) 5))
-        ($confidence (round-float (Truth_w2c (min $cBA $cBC)) 5))
+        ($strength (round-float (+ $op1 $op2) 7))
+        ($confidence (round-float (Truth_w2c (min $cBA $cBC)) 7))
     ) (STV $strength $confidence)))
 
 ; Abduction formula: PLN book "Appendix A: Comparison of PLN Rules with NARS Rules", page 307
