@@ -2,9 +2,7 @@
 ;; Utils Test Suite — use-cases/metta-trader/utils.metta
 ;; =============================================================================
 ;; Comprehensive unit tests for every utility function used by the MeTTa-Trader
-;; agent.  Each section mirrors a logical group of functions from utils.metta,
-;; and every assertion follows the !(test <expr> <expected>) convention that is
-;; standard across the PeTTa-OpenPSI codebase.
+;; agent.
 ;; =============================================================================
 
 ;; ---- Imports ----------------------------------------------------------------
