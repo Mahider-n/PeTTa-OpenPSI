@@ -64,7 +64,7 @@
 !(bind! &ruleSpace (new-space))
 !(initializeSpace &ruleSpace)
 
-!(gameLoop pln-reasoning (((PLANET A) (STV 0.2 0.1))) 500 &ruleSpace 300 (500))
+!(gameLoop nars-reasoning (((PLANET A) (STV 0.2 0.1))) 500 &ruleSpace 300 (500))
 ;;reasonedRules ((: Rule 23 (TTV 2) $_30344720 (Complexity 0) (IMPLICATION (AND $_30344756 (Action (SEQ_AND ()))) $_30344792))))
 ;; (: Rule 2
 ;;             (TTV 0)
