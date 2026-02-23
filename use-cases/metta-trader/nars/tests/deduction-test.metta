@@ -62,4 +62,4 @@
 
 
 !(addRule &ruleSpace)
-!(applyDeductionNars (collapse (get-atoms &ruleSpace)))
+!(test (applyDeductionNars (collapse (get-atoms &ruleSpace))) ())
