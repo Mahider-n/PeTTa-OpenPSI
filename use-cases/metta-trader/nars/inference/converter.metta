@@ -1,8 +1,10 @@
+
 (= (convertRuleToPSI $rule)
     (let* (
         ($id (random-int 2000 3000)) ;; temporary ID generation
         (((($context $action) --> $goal) ($freq $conf)) $rule)
         ($lbConf (max 0.01 $conf)) ;; due to arthmetic issues, I set a lower bound for confidence
+        
         
 
         ($complexity (size-atom $action))
@@ -43,3 +45,4 @@
       ($id ((($context $action) --> $goal) ($freq $conf))) 
     )
 )
+

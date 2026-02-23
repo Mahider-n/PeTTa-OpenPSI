@@ -20,7 +20,7 @@
 ;!(test 
 !(test (areEqualRules (convertRuleToPSI ((((((PLANET A) (STV 0.2 0.1))) ((TRAVEL))) --> (((PLANET B) (STV 0.2 0.1)))) (0.5 0.002))) (: Rule 1
             (TTV 0)
-            (STV 0.5 0.002)
+            (STV 0.5 0.01)
             (Complexity 1)
             (IMPLICATION
                 (AND
