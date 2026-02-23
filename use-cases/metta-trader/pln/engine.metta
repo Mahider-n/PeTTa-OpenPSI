@@ -1,9 +1,11 @@
 (= (pln-reasoning $rules) (
     let* (
-        ($abductionResults (eval (pln-abduction $rules)))
-        ($conjunctionResults (eval (pln-conjunction $rules)))
+        ;($abductionResults (eval (pln-abduction $rules)))
+        ;($conjunctionResults (eval (pln-conjunction $rules)))
         ($deductionResults (eval (pln-deduction $rules)))
-        ($inductionResults (eval (pln-induction $rules)))
+        ;($inductionResults (eval (pln-induction $rules)))
+        ($abductionResults ())
+        ($inductionResults ())
 
         ; ($_ (println! (Abduction Results: $abductionResults)))
         ; ($_ (println! (Conjunction Results: $conjunctionResults)))

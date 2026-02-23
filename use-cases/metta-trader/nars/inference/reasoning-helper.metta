@@ -1,5 +1,5 @@
 
-(= (getMatchingPremises $type $premises $rule $remRules) (
+(= (getMatchingPremisesNars $type $premises $rule $remRules) (
     let* (
         ($ruleGoal (extractRule GoalValues $rule))
         ; ($_ (println! ("Rule Goal: " $ruleGoal)))
@@ -15,13 +15,13 @@
         )))
     ) (
         if (== $type deduction)
-            (map-atom $matchingRules $matchingRule (reason-ded $rule $matchingRule $premises))
+            (map-atom $matchingRules $matchingRule (reasonDed $rule $matchingRule $premises))
             (if (== $type abduction)
-                (map-atom $matchingRules $matchingRule (reason-abd $rule $matchingRule $premises))
+                (map-atom $matchingRules $matchingRule (reasonAbd $rule $matchingRule $premises))
                 (if (== $type induction)
-                    (map-atom $matchingRules $matchingRule (reason-ind $rule $matchingRule $premises))
+                    (map-atom $matchingRules $matchingRule (reasonInd $rule $matchingRule $premises))
                     (if (== $type exemplification)
-                        (map-atom $matchingRules $matchingRule (reason-exe $rule $matchingRule $premises))
+                        (map-atom $matchingRules $matchingRule (reasonExe $rule $matchingRule $premises))
                         (empty)
                     )
                 ))
@@ -29,7 +29,7 @@
 ))
 
 
-(= (applyDeduction $rules) (
+(= (applyDeductionNars $rules) (
     if (<= (size-atom $rules) 1)
         ()
         (let* (
@@ -39,11 +39,11 @@
             ($premise-four (eval (extractRule STV $rule)))
             ($premises ($premise-one $premise-two $premise-four))
             ($matchingRuleDeductions (getMatchingPremises deduction $premises $rule $remRules))
-            ($restDeductions (applyDeduction $remRules))
+            ($restDeductions (applyDeductionNars $remRules))
         ) (union-atom $restDeductions $matchingRuleDeductions))
 ))
 
-(= (reason-ded $rule $matchingRule $premises) (
+(= (reasonDed $rule $matchingRule $premises) (
     let* (
         (($id1 $narsRule) (convertRuleToNars $rule))
         (($id2 $narsMatchingRule) (convertRuleToNars $matchingRule))
@@ -55,7 +55,7 @@
 ))
 
 
-(= (reason-abd $rule $matchingRule $premises) (
+(= (reasonAbd $rule $matchingRule $premises) (
     let* (
         (($id1 $narsRule) (convertRuleToNars $rule))
         (($id2 $narsMatchingRule) (convertRuleToNars $matchingRule))
@@ -64,7 +64,7 @@
 ))
 
 
-(= (reason-ind $rule $matchingRule $premises) (
+(= (reasonInd $rule $matchingRule $premises) (
     let* (
         (($id1 $narsRule) (convertRuleToNars $rule))
         (($id2 $narsMatchingRule) (convertRuleToNars $matchingRule))
@@ -73,7 +73,7 @@
 ))
 
 
-(= (reason-exe $rule $matchingRule $premises) (
+(= (reasonExe $rule $matchingRule $premises) (
     let* (
         (($id1 $narsRule) (convertRuleToNars $rule))
         (($id2 $narsMatchingRule) (convertRuleToNars $matchingRule))
@@ -82,7 +82,7 @@
 ))
 
 
-(= (applyInduction $rules) (
+(= (applyInductionNars $rules) (
     if (<= (size-atom $rules) 1)
         ()
         (let* (
@@ -91,13 +91,13 @@
             ($premise-two (eval (extractRule GoalSTV $rule)))
             ($premise-four (eval (extractRule STV $rule)))
             ($premises ($premise-one $premise-two $premise-four))
-            ($matchingRuleInductions (eval (getMatchingPremises induction $premises $rule $remRules)))
-            ($restInductions (applyInduction $remRules))
+            ($matchingRuleInductions (eval (getMatchingPremisesNars induction $premises $rule $remRules)))
+            ($restInductions (applyInductionNars $remRules))
         ) (union-atom $restInductions $matchingRuleInductions))
 ))
 
 
-(= (applyAbduction $rules) (
+(= (applyAbductionNars $rules) (
     if (<= (size-atom $rules) 1)
         ()
         (let* (
@@ -106,12 +106,12 @@
             ($premise-two (eval (extractRule GoalSTV $rule)))
             ($premise-four (eval (extractRule STV $rule)))
             ($premises ($premise-one $premise-two $premise-four))
-            ($matchingRuleAbductions (eval (getMatchingPremises abduction $premises $rule $remRules)))
-            ($restAbductions (applyAbduction $remRules))
+            ($matchingRuleAbductions (eval (getMatchingPremisesNars abduction $premises $rule $remRules)))
+            ($restAbductions (applyAbductionNars $remRules))
         ) (union-atom $restAbductions $matchingRuleAbductions))
 ))
 
-(= (applyExemplification $rules) (
+(= (applyExemplificationNars $rules) (
     if (<= (size-atom $rules) 1)
         ()
         (let* (
@@ -120,7 +120,7 @@
             ($premise-two (eval (extractRule GoalSTV $rule)))
             ($premise-four (eval (extractRule STV $rule)))
             ($premises ($premise-one $premise-two $premise-four))
-            ($matchingRuleExemplifications (eval (getMatchingPremises exemplification $premises $rule $remRules)))
-            ($restExemplifications (applyExemplification $remRules))
+            ($matchingRuleExemplifications (eval (getMatchingPremisesNars exemplification $premises $rule $remRules)))
+            ($restExemplifications (applyExemplificationNars $remRules))
         ) (union-atom $restExemplifications $matchingRuleExemplifications))
 ))

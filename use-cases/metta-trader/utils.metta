@@ -1,3 +1,4 @@
+(= (round-float $num $decimalPlace) (py-call (round $num $decimalPlace)))
 (= (getPlanetFromContexts $contexts) (
     let* (
         (($head $tail) (decons-atom $contexts))
@@ -232,11 +233,13 @@
 
 (= (dynamicBetaUpdate $alpha $beta $reward) (
     let* (
-        (($updatedAlpha $updatedBeta) (updateBeta $alpha $beta $reward))
-        ($C 50)
-        ($discountFactor (/ $C (+ 1 $C)))
-        ($_ (println! (Updated Alpha: $updatedAlpha Updated Beta: $updateBeta Discount Factor: $discountFactor)))
-    ) (if (>= (+ $alpha $beta) $C)
+        (($resultAlpha $resultBeta) (updateBeta $alpha $beta $reward))
+        ($updatedAlpha (round-float $resultAlpha 3))
+        ($updatedBeta (round-float $resultBeta 3))
+        ($threshold 15)
+        ($discountFactor (/ $threshold (+ 1 $threshold)))
+        ($_ (println! (Updated Alpha: $updatedAlpha Updated Beta: $updatedBeta Discount Factor: $discountFactor)))
+    ) (if (>= (+ $alpha $beta) $threshold)
         ((* $updatedAlpha $discountFactor) (* $updatedBeta $discountFactor))
         ($updatedAlpha $updatedBeta))
 ))
@@ -260,5 +263,18 @@
     )
 ))
 
+
+
+(= (add-atoms $space $values) 
+    (if (== $values ()) 
+        ()
+        (let* (
+            (($head $tail) (decons-atom $values))
+            ($_ (add-atom $space $head))
+        )
+            (add-atoms $space $tail)
+        )
+    )
+)
 ;; Update Atoms in a space
 (= (updateAtom $oatom $natom $space) (let $_ (remove-atom $space $oatom) (add-atom $space $natom)))

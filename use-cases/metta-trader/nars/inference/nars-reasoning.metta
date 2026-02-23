@@ -1,9 +1,9 @@
 !(import! &self reasoning-helper)
 (= (nars-reasoning $rules) (
     let* (
-        ($deductions (applyDeduction $rules))
-        ;; ($inductions (applyInduction $rules))
-        ;; ($abductions (applyAbduction $rules))
+        ($deductions (applyDeductionNars $rules))
+        ;; ($inductions (applyInductionNars $rules))
+        ;; ($abductions (applyAbductionNars $rules))
         ;;($exemplifications ()) ;; Todo
         ($inductions ())
         ($abductions ())
