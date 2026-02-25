@@ -101,26 +101,14 @@
 
 ;; General Rule helpers
 
-;; For now complexity is the number of actions in the rule
-
-; (= (calculateComplexity $rule) (
-;     let* (
-;         ($action (extractRuleAction $rule))
-;         ($actionCount (size-atom $action))
-;     ) $actionCount
-; ))
-
-;; This could be optimized by adding an atom that tracks the max TTV in the rule space instead of searching every time
-; (: findCurrentTTV (-> hyperon::space::DynSpace Number))
 (= (findCurrentTTV $ruleSpace) (
     let* (
         ($rules (collapse (get-atoms $ruleSpace)))
         ($ttvValues (map-atom $rules $rule (extractRule TTV $rule)))
         ($_ (println! ("Current TTV values: " $ttvValues)))
-    ) (max-atom $ttvValues) ;; For some reason max-atom returns a float instead of int
+    ) (max-atom $ttvValues)
 ))
 
-; (: findCurrentRuleId (-> hyperon::space::DynSpace Number))
 (= (findCurrentRuleId $ruleSpace) (
     let* (
         ($rules (collapse (get-atoms $ruleSpace)))

@@ -1,17 +1,14 @@
 ;; Save Division: Avoids dividing by zero
-
 (= (/safe $A $B) (
     if (> $B 0.0)
        (/ $A $B)
        (empty))
 )
 
-
 (= (isMember $list $val) (
     let $exists (collapse (let $member (superpose $list) (if (== $member $val) True (empty))))
     (if (== $exists ()) 0 1)
 ))
-
 
 (= (sum $list) (
     if (== $list ())
@@ -21,7 +18,6 @@
             ($rest (sum $tail))
         ) (+ $head $rest))
 ))
-
 
 (= (countSimilar $listOne $listTwo) (
     let* (
@@ -43,15 +39,9 @@
   )
 )
 
-; (= (round $x $d) 
-;    (py-call ("round" $x $d)))
-
-
 (= (toInt $num) (
     py-call ("int" $num)
 ))
-
-
 
 (= (flattenList $list) (
     if (== () $list)
