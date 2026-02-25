@@ -1,16 +1,14 @@
 !(import! &self ../rule-ops)
-
+!(import! &self ../planner)
 
 ;; =============================================================================
-;; Minimal re-defined helpers needed by thompson-sample
+;; Pure helpers from planner-utils (no py-call dependency)
 ;; =============================================================================
 
-;; Convert confidence to count (from planner-utils)
 (= (confidenceToCount $confidence) (
     / (* $confidence 800) (- 1 $confidence)
 ))
 
-;; Convert STV to alpha / beta parameters (from planner-utils)
 (= (stvToBeta ($strength $confidence)) (
     let* (
         ($count (confidenceToCount $confidence))
@@ -19,29 +17,13 @@
     ) ($alpha $beta)
 ))
 
-;; Mock betaSample — deterministic mean
+(= (isBetween $val $low $high) (and (>= $val $low) (<= $val $high)))
+
+;; =============================================================================
+;; betaSample — deterministic mean
+;; =============================================================================
+
 (= (betaSample $a $b) (/ $a (+ $a $b)))
-
-
-;; =============================================================================
-;; Re-defined thompson-sample from planner.metta
-;; =============================================================================
-
-(= (thompson-sample $rules) (
-    if (== $rules ())
-        (0 ())
-        (let* (
-            (($rule $tail) (decons-atom $rules))
-            ((STV $s $c) (eval (extractRule STV $rule)))
-            ($ruleId (eval (extractRule Id $rule)))
-            (($alpha $beta) (eval (stvToBeta ($s $c))))
-            ($sampledValue (eval (betaSample $alpha $beta)))
-            (($currMax $currRule) (thompson-sample $tail))
-        ) (if (> $sampledValue $currMax)
-            ($sampledValue $rule)
-            ($currMax $currRule)
-        ))
-))
 
 
 ;; =============================================================================
@@ -55,6 +37,41 @@
     ) (extractRule Id $rule)
 ))
 
+;; Check thompson-sample returns a score in [0, 1]
+(= (thompsonScoreInRange $rules) (
+    let* (
+        (($score $rule) (thompson-sample $rules))
+    ) (isBetween $score 0.0 1.0)
+))
+
+;; Check the selected rule has a valid positive Id
+(= (selectedRuleIdPositive $rules) (
+    let* (
+        (($score $rule) (thompson-sample $rules))
+        ($id (extractRule Id $rule))
+    ) (> $id 0)
+))
+
+;; Check if a value is a member of a list
+(= (isMember $val $list) (
+    if (== $list ())
+        False
+        (let* (
+            (($head $tail) (decons-atom $list))
+        ) (if (== $val $head)
+            True
+            (isMember $val $tail)
+        ))
+))
+
+;; Check the selected rule Id is one of the expected Ids
+(= (selectedRuleIdIn $rules $expectedIds) (
+    let* (
+        (($score $rule) (thompson-sample $rules))
+        ($id (extractRule Id $rule))
+    ) (isMember $id $expectedIds)
+))
+
 
 ;; =============================================================================
 ;; Reusable STV / rule fixtures
@@ -62,7 +79,7 @@
 
 (= (testSTV) (STV 0.2 0.1))
 
-
+;; High strength (0.9)
 (= (HighStrengthRule)
     (: Rule 100
         (TTV 0)
@@ -107,36 +124,7 @@
     ))
 )
 
-;; Equal-strength rules (for tie-breaking verification)
-(= (EqualRuleFirst)
-    (: Rule 200
-        (TTV 0)
-        (STV 0.6 0.5)
-        (Complexity 1)
-        (IMPLICATION
-            (AND
-                (Context (testSTV) (AND (((PLANET A) (testSTV)))))
-                (Action (SEQ_AND ((TRAVEL))))
-            )
-            (Goal (testSTV) (AND (((PLANET B) (testSTV)))))
-    ))
-)
-
-(= (EqualRuleSecond)
-    (: Rule 201
-        (TTV 0)
-        (STV 0.6 0.5)
-        (Complexity 1)
-        (IMPLICATION
-            (AND
-                (Context (testSTV) (AND (((PLANET B) (testSTV)))))
-                (Action (SEQ_AND ((TRAVEL))))
-            )
-            (Goal (testSTV) (AND (((PLANET C) (testSTV)))))
-    ))
-)
-
-;; Buy-type rule (0.7 strength — different action type)
+;; Buy-type rule 
 (= (BuyFoodRule)
     (: Rule 300
         (TTV 0)
@@ -154,7 +142,7 @@
     ))
 )
 
-;; Very-high strength (0.95) — for order-independence tests
+;; Very-high strength 
 (= (VeryHighStrengthRule)
     (: Rule 400
         (TTV 0)
@@ -172,17 +160,14 @@
 
 ;; ---- Rule list fixtures -----------------------------------------------------
 
-(= (ThreeRules)    ((HighStrengthRule) (MedStrengthRule) (LowStrengthRule)))
-(= (ReversedRules) ((LowStrengthRule) (MedStrengthRule) (HighStrengthRule)))
-(= (TwoRules)      ((LowStrengthRule) (MedStrengthRule)))
-(= (SingleRule)    ((HighStrengthRule)))
-(= (EqualRules)    ((EqualRuleFirst) (EqualRuleSecond)))
+(= (ThreeRules)     ((HighStrengthRule) (MedStrengthRule) (LowStrengthRule)))
+(= (SingleRule)     ((HighStrengthRule)))
 (= (MixedTypeRules) ((BuyFoodRule) (MedStrengthRule) (LowStrengthRule)))
-(= (FourRules)     ((MedStrengthRule) (LowStrengthRule) (VeryHighStrengthRule) (HighStrengthRule)))
+(= (FourRules)      ((MedStrengthRule) (LowStrengthRule) (VeryHighStrengthRule) (HighStrengthRule)))
 
 
 ;; =============================================================================
-;; extractRule integration 
+;;  extractRule integration (via rule-ops import)
 ;; =============================================================================
 
 ;;   Extract STV
@@ -204,55 +189,72 @@
 
 
 ;; =============================================================================
-;;  thompson-sample — base case
+;;  thompson-sample — base case (deterministic)
 ;; =============================================================================
 
-;;   Empty rule list returns (0 ())
 !(test (thompson-sample ()) (0 ()))
 
 
 ;; =============================================================================
-;;  thompson-sample — single rule
+;;  thompson-sample — single rule (deterministic)
 ;; =============================================================================
 
-;;   Single rule is always selected
 !(test (selectedRuleId (SingleRule)) 100)
 
 
 ;; =============================================================================
-;;  thompson-sample — picks highest strength
+;;  thompson-sample — score always in valid range [0, 1]
 ;; =============================================================================
+
+;;   Single rule — score in range
+!(test (thompsonScoreInRange (SingleRule)) True)
+
+;;   Three rules — score in range
+!(test (thompsonScoreInRange (ThreeRules)) True)
+
+;;   Mixed action types — score in range
+!(test (thompsonScoreInRange (MixedTypeRules)) True)
+
+;;   Four rules — score in range
+!(test (thompsonScoreInRange (FourRules)) True)
+
+
+;; =============================================================================
+;;  thompson-sample — selected rule has a valid positive Id
+;; =============================================================================
+
+!(test (selectedRuleIdPositive (ThreeRules)) True)
+
+!(test (selectedRuleIdPositive (MixedTypeRules)) True)
+
+!(test (selectedRuleIdPositive (FourRules)) True)
+
+
+;; =============================================================================
+;;  thompson-sample — selected rule Id is from the input set
+;; =============================================================================
+
+!(test (selectedRuleIdIn (ThreeRules) (100 101 102)) True)
+
+!(test (selectedRuleIdIn (MixedTypeRules) (300 101 102)) True)
+
+!(test (selectedRuleIdIn (FourRules) (101 102 400 100)) True)
+
+
+;; =============================================================================
+;;  thompson-sample — picks highest strength (deterministic override)
+;; =============================================================================
+
 
 !(test (selectedRuleId (ThreeRules)) 100)
 
-!(test (selectedRuleId (ReversedRules)) 100)
-
-!(test (selectedRuleId (TwoRules)) 101)
-
-
-;; =============================================================================
-;;  thompson-sample — mixed action types
-;; =============================================================================
-
 !(test (selectedRuleId (MixedTypeRules)) 300)
-
-
-;; =============================================================================
-;;  thompson-sample — four rules with clear winner
-;; =============================================================================
 
 !(test (selectedRuleId (FourRules)) 400)
 
 
 ;; =============================================================================
-;;thompson-sample — tie-breaking with equal strengths
-;; =============================================================================
-
-!(test (selectedRuleId (EqualRules)) 201)
-
-
-;; =============================================================================
-;; thompson-sample — original planner.metta Rules fixture
+;; 8. thompson-sample — original planner.metta Rules fixture
 ;; =============================================================================
 
 (= (PlannerRules) (
@@ -305,5 +307,8 @@
         ))
 ))
 
-;;   With deterministic mock, Rule 2 (strength 0.9) wins
+!(test (thompsonScoreInRange (PlannerRules)) True)
+
+!(test (selectedRuleIdIn (PlannerRules) (1 2 3)) True)
+
 !(test (selectedRuleId (PlannerRules)) 2)

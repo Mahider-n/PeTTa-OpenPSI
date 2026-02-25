@@ -66,8 +66,8 @@
 ))
 
 ;; An alternative to beta sampling for PeTTa
-; (= (np) (import numpy))
-; (= (np.random) (get-attribute (np) random))
-; (= (betaSample $a $b) (
-;     py-call (".beta" (np.random) $a $b 1)
-; ))
+(= (np) (import numpy))
+(= (np.random) (get-attribute (np) random))
+(= (betaSample $a $b) (
+    py-call (".beta" (np.random) $a $b 1)
+))

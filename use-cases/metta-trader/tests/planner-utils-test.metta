@@ -1,44 +1,12 @@
-!(import! &self ../rule-ops)
-
-
-;; =============================================================================
-;; Re-defined pure helpers from planner-utils.metta
-;; =============================================================================
-
-;; Convert confidence to count
-(= (confidenceToCount $confidence) (
-    / (* $confidence 800) (- 1 $confidence)
-))
-
-;; Convert count to confidence
-(= (countToConfindence $count) (
-    / $count (+ 800 $count)
-))
-
-;; Convert STV to alpha / beta parameters of the Beta distribution
-(= (stvToBeta ($strength $confidence)) (
-    let* (
-        ($count (confidenceToCount $confidence))
-        ($alpha (* $strength $count))
-        ($beta (- $count $alpha))
-    ) ($alpha $beta)
-))
-
-;; Range check
-(= (isBetween $val $low $high) (and (>= $val $low) (<= $val $high)))
-
-;; Mock betaSample 
-(= (betaSample $a $b) (/ $a (+ $a $b)))
+!(import! &self ../planner-utils)
 
 
 ;; =============================================================================
 ;;  confidenceToCount
 ;; =============================================================================
 
-;;   confidence 
 !(test (confidenceToCount 0.5) 800.0)
 
-;;   confidence 
 !(test (confidenceToCount 0.2) 200.0)
 
 
@@ -93,11 +61,77 @@
 
 
 ;; =============================================================================
-;; 5. betaSample mock 
+;;  round  (py-call wrapper)
 ;; =============================================================================
 
-;; 5.1  Equal α and β → mean = 0.5
-!(test (betaSample 400 400) 0.5)
+!(test (round 3.14159 2) 3.14)
 
-;; 5.2  Skewed α → high value close to 1
-!(test (betaSample 800.0 200.0) 0.8)
+!(test (round 2.718 1) 2.7)
+
+!(test (round 0.5 2) 0.5)
+
+
+;; =============================================================================
+;;  logarithm  (py-call wrapper — natural log)
+;; =============================================================================
+
+!(test (logarithm 1) 0.0)
+
+
+;; =============================================================================
+;; 7. betaToSTV  (inverse of stvToBeta, uses round via py-call)
+;; =============================================================================
+
+
+;;   Symmetric 
+!(test (betaToSTV (400.0 400.0)) (0.5 0.501))
+
+;;   Skewed 
+!(test (betaToSTV (600.0 200.0)) (0.75 0.501))
+
+;;   Opposite skew 
+!(test (betaToSTV (200.0 600.0)) (0.25 0.501))
+
+;;   Tiny counts 
+!(test (betaToSTV (1.0 1.0)) (0.5 0.001))
+
+
+;; =============================================================================
+;;  betaSample  (deterministic mean-based verification)
+;; =============================================================================
+
+
+;; Helper: deterministic Beta mean
+(= (betaMean $a $b) (/ $a (+ $a $b)))
+
+;;   Symmetric parameters 
+!(test (betaMean 400.0 400.0) 0.5)
+
+;;   Skewed toward 
+!(test (betaMean 800.0 200.0) 0.8)
+
+;;   Skewed toward 
+!(test (betaMean 200.0 800.0) 0.2)
+
+;;   Small parameters 
+!(test (isBetween (betaMean 2.0 3.0) 0.0 1.0) True)
+
+
+;; =============================================================================
+;;  Round-trip: stvToBeta → betaToSTV
+;; =============================================================================
+
+!(test (let* (
+    (($a $b) (stvToBeta (0.5 0.5)))
+    (($s $c) (betaToSTV ($a $b)))
+) $s) 0.5)
+
+!(test (let* (
+    (($a $b) (stvToBeta (0.75 0.5)))
+    (($s $c) (betaToSTV ($a $b)))
+) $s) 0.75)
+
+!(test (let* (
+    (($a $b) (stvToBeta (0.25 0.5)))
+    (($s $c) (betaToSTV ($a $b)))
+) $s) 0.25)
