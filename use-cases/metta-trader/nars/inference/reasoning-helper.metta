@@ -2,7 +2,7 @@
 (= (getMatchingPremisesNars $type $premises $rule $remRules) (
     let* (
         ($ruleGoal (extractRule GoalValues $rule))
-        ; ($_ (println! ("Rule Goal: " $ruleGoal)))
+        ($_ (println! ("Rule Goal: " $ruleGoal)))
         ($ruleContextAction (extractRule ContextAndAction $rule))
         ; ($_ (println! ("Rule Context and Action: " $ruleContextAction)))
         ; ($_ (println! ("Remaining Rules: " (collapse (get-atoms &ruleSpace)))))
@@ -38,7 +38,9 @@
             ($premise-two (eval (extractRule GoalSTV $rule)))
             ($premise-four (eval (extractRule STV $rule)))
             ($premises ($premise-one $premise-two $premise-four))
+            ($_ (println! (premises $premises)))
             ($matchingRuleDeductions (getMatchingPremisesNars deduction $premises $rule $remRules))
+            ($_ (println! (matching $matchingRuleDeductions)))
             ($restDeductions (applyDeductionNars $remRules))
         ) (union-atom $restDeductions $matchingRuleDeductions))
 ))
@@ -47,8 +49,8 @@
     let* (
         (($id1 $narsRule) (convertRuleToNars $rule))
         (($id2 $narsMatchingRule) (convertRuleToNars $matchingRule))
-        ; ($_ (println! ("Reasoning with rule: " $narsRule)))
-        ; ($_ (println! ("Reasoning with matching rule: " $narsMatchingRule)))
+        ($_ (println! ("Reasoning with rule: " $narsRule)))
+        ($_ (println! ("Reasoning with matching rule: " $narsMatchingRule)))
         ($inferenceResult (eval (deductionResp $narsRule $narsMatchingRule)))
         ; ($_ (println! ("Inference result: " $inferenceResult)))
     ) (convertRuleToPSI $inferenceResult)
@@ -109,6 +111,7 @@
             ($premises ($premise-one $premise-two $premise-four))
             ($_ (println! (premises $premises)))
             ($matchingRuleAbductions (eval (getMatchingPremisesNars abduction $premises $rule $remRules)))
+            ($_ (println! (matching $matchingRuleAbductions)))
             ($restAbductions (applyAbductionNars $remRules))
         ) (union-atom $restAbductions $matchingRuleAbductions))
 ))
