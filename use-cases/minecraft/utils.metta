@@ -211,7 +211,7 @@
    
     ((moveToFood) (
       let* (
-        ($pos (getNearestFoodAnimalPos &perceptionSpace))
+        ($pos (eval (getNearestFoodAnimalPos &perceptionSpace)))
         ($_ (println! ("Moving to food at position:" $pos)))
         )
       (if (== $pos ())
@@ -244,7 +244,7 @@
       $res))
       
     ((approachTarget) (let* (
-        ($pos (getNearestFoodAnimalPos &perceptionSpace))
+        ($pos (eval (getNearestFoodAnimalPos &perceptionSpace)))
       )
       (if (== $pos ())
          (moveToRandomOffset 2 6)
@@ -255,7 +255,7 @@
 
     ((collectItem) (
       let* (
-        ($pos (getNearestEntityPosByType &perceptionSpace item))
+        ($pos (eval (getNearestEntityPosByType &perceptionSpace item)))
         )
          (if (== $pos ())
             (No Item To Collect)
