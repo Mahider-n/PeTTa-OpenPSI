@@ -15,7 +15,7 @@ Execution flow in `main.metta`:
 2. Initialize a rule space using `initializeSpace` from `schemas.metta`.
 3. The Loop:
    - Sample candidate rules
-   - Generate inferred rules via PLN (`pln-reasoning`)
+   - Generate inferred rules via PLN (`pln-reasoning`) and NARS (`nars-reasoning`)
    - Add inferred rules to rule space
    - Filter applicable rules for the current context/money
    - Select a rule via Thompson sampling
@@ -34,6 +34,14 @@ metta-trader/
 ├── schemas.metta
 ├── ruleSampler.metta
 ├── tests/
+├── nars/
+    ├──inference
+        ├── converter.metta
+        ├── inference-rules.metta
+        ├── nars-compiled.metta
+        ├── query.metta
+        ├── reasoning-helper.metta
+        ├── rule-helpers.metta
 └── pln/
     ├── engine.metta
     ├── formula.metta
@@ -42,6 +50,7 @@ metta-trader/
     ├── inference/
     ├── rule/
     └── tests/
+     
 ```
 
 ## 4. Top-Level Files
@@ -93,8 +102,10 @@ PLN-focused tests:
 - `pln/tests/inference-tests/induction-test.metta`
 - `pln/tests/inference-tests/conjunction-test.metta`
 - `pln/tests/inference-tests/directly-evaluate-test.metta` (targets direct evaluation path).
+## 7. `nars/` Subsystem
+The nars subsystem contains similar types of structure like its pln alternative but with its own truth value calculation methods alternative to `PLN`. The calculations are found in `inference-rules.metta` which are specific to `NAL-1`
 
-## 7. Suggested Entry Points
+## 8. Suggested Entry Points
 - Main runtime: `main.metta`
 - Rule/environment logic: `utils.metta`, `rule-ops.metta`, `world.metta`
 - Reasoning extension point: `pln/engine.metta` plus files under `pln/inference/`

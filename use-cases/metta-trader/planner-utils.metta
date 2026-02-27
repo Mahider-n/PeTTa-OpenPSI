@@ -1,5 +1,5 @@
 ;; Utility functions for Thompson Sampling based action planner
-
+;; Taken from the rocca's implementation. 
 ;; Convert confidence to count
 (= (confidenceToCount $confidence) (
     / (* $confidence 800) (- 1 $confidence)
