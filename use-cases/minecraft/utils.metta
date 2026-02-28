@@ -333,34 +333,4 @@
    )
 )
 
-(= (leastDemandByVal $demands $bestDemand)
-   (if (== $demands ())
-      $bestDemand
-      (let* (
-         (($head $tail) (decons-atom $demands))
-         ((demand $headName $headMin $headMax $headVal) $head)
-         ((demand $bestName $bestMin $bestMax $bestVal) $bestDemand)
-      )
-      (if (< $headVal $bestVal)
-         (leastDemandByVal $tail $head)
-         (leastDemandByVal $tail $bestDemand)))))
 
-;; ε-greedy demand selector
-(= (getLeastSatisfiedDemand $space)
-   (let* (
-      ($activeDemands (collapse (match $space (demand $name $min $max $val) (demand $name $min $max $val))))
-   )
-   (if (== $activeDemands ())
-      ()
-      (let* (
-         ($leastDemand (leastDemandByVal (cdr-atom $activeDemands) (car-atom $activeDemands)))
-         ($epsilon 0.25)
-         ($roll (random-float &rng 0 1))
-      )
-      (if (< $roll $epsilon)
-         (let* (
-            ($count (size-atom $activeDemands))
-            ($idx (random-int &rng 0 (- $count 1)))
-         )
-         (index-atom $activeDemands $idx))
-         $leastDemand)))))
