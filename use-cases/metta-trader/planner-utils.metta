@@ -60,3 +60,10 @@
         ($gamma (/ (+ $a 1) $beta))
     ) (sampleEngine $alpha $beta $a $b $gamma)
 ))
+
+;; An alternative to beta sampling for PeTTa
+(= (np) (import numpy))
+(= (np.random) (get-attribute (np) random))
+(= (betaSample $a $b) (
+    py-call (".beta" (np.random) $a $b 1)
+))
