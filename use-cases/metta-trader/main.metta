@@ -1,8 +1,9 @@
 !(import! &self rule-ops)
 !(import! &self utils)
 !(import! &self world)
+;;!(import! &self planner-utils)
 !(import! &self planner)
-!(import! &self planner-utils)
+
 !(import! &self schemas)
 !(import! &self ruleSampler)
 
@@ -16,17 +17,27 @@
 
 !(import! &self pln/rule/inference-utils)
 !(import! &self pln/rule/helpers)
+!(import! &self nars/inference/converter)
+!(import! &self nars/inference/inference-rules)
+!(import! &self nars/inference/reasoning-helper)
+!(import! &self nars/inference/nars-reasoning)
 
 ;; Main Entry Point
-(= (loop $contexts $money $ruleSpace $depth) (
+(= (gameLoop $reasoner $contexts $money $ruleSpace $depth $accum) 
     (if (== $depth 0)
-        (println! "Reached max depth")
+        ;;(println! "Reached max depth")
+        ;;(final money: $money)
+        $accum
         (let* (
+            ($_ (println! (depth $depth)))
             ($rules (collapse (get-atoms $ruleSpace)))
             ($sampledRules (ruleSampler $rules 3))
-            ($reasonedRules (pln-reasoning $sampledRules))
-
+            ($_ (println! (sampledRules $sampledRules)))
+            ($_ (println! (reasoning started)))
+            ($reasonedRules ($reasoner $sampledRules))
+            ($_ (println! (reasonedRules $reasonedRules)))
             ($_ (collapse (let $rule (superpose $reasonedRules) (add-atom $ruleSpace $rule))))
+            ;;($_ (add-atoms $ruleSpace $reasonedRules))
             ($combinedRules (collapse (get-atoms $ruleSpace)))
             ($_ (println! (Combined Rules: (size-atom $combinedRules))))
             ($applicableRules (getApplicableRules $contexts $money $combinedRules))
@@ -44,12 +55,29 @@
             ($updatedRule (updateRule $selectedRule $reward))
             ($_ (println! (Money: $newMoney)))
             ($_ (collapse (updateAtom $selectedRule $updatedRule $ruleSpace)))
+            ($newAccum (union-atom $accum ($newMoney)))
         )
-    (loop $newContexts $newMoney $ruleSpace (- $depth 1))))
-))
+    (gameLoop $reasoner $newContexts $newMoney $ruleSpace (- $depth 1) $newAccum)))
+)
 
 !("Loop Started")
 !(bind! &ruleSpace (new-space))
 !(initializeSpace &ruleSpace)
+!(gameLoop nars-reasoning (((PLANET A) (STV 0.2 0.1))) 500 &ruleSpace 300 (500))
+;;reasonedRules ((: Rule 23 (TTV 2) $_30344720 (Complexity 0) (IMPLICATION (AND $_30344756 (Action (SEQ_AND ()))) $_30344792))))
+;; (: Rule 2
+;;             (TTV 0)
+;;             (STV 0.5 0.002)
+;;             (Complexity 1)
+;;             (IMPLICATION
+;;                 (AND
+;;                     (Context (STV 0.2 0.1) (AND (
+;;                         ((PLANET A) (STV 0.2 0.1))
+;;                     )))
+;;                     (Action (SEQ_AND ((TRAVEL))))
+;;                 )
+;;                 (Goal (STV 0.2 0.1) (AND (
+;;                     ((PLANET C) (STV 0.2 0.1))
+;;                 )))
+;;         ))
 
-!(loop (((PLANET A) (STV 0.2 0.1))) 500 &ruleSpace 300)

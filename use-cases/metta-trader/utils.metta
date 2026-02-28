@@ -1,3 +1,4 @@
+(= (round-float $num $decimalPlace) (py-call (round $num $decimalPlace)))
 (= (getPlanetFromContexts $contexts) (
     let* (
         (($head $tail) (decons-atom $contexts))
@@ -79,6 +80,7 @@
         ()
         (let* (
             (($head $tail) (decons-atom $rules))
+            ;; ($_ (println! (head $head)))
             ($isValid (isValidRule $contexts $money $head))
             ($rest (getApplicableRules $contexts $money $tail))
         ) (if $isValid
@@ -233,24 +235,27 @@
 (= (dynamicBetaUpdate $alpha $beta $reward) (
     let* (
         (($updatedAlpha $updatedBeta) (updateBeta $alpha $beta $reward))
-        ($C 50)
-        ($discountFactor (/ $C (+ 1 $C)))
-        ($_ (println! (Updated Alpha: $updatedAlpha Updated Beta: $updateBeta Discount Factor: $discountFactor)))
-    ) (if (>= (+ $alpha $beta) $C)
-        ((* $updatedAlpha $discountFactor) (* $updatedBeta $discountFactor))
-        ($updatedAlpha $updatedBeta))
+        ;; ($updatedAlpha (round-float $resultAlpha 3))
+        ;; ($updatedBeta (round-float $resultBeta 3))
+        ($threshold 10)
+        ($discountFactor (/ $threshold (+ 1 $threshold)))
+        ($_ (println! (Updated Alpha: $updatedAlpha Updated Beta: $updatedBeta Discount Factor: $discountFactor)))
+    ) (if (>= (+ $alpha $beta) $threshold)
+        ( (* $updatedAlpha $discountFactor)  (* $updatedBeta $discountFactor) )
+        ( $updatedAlpha   $updatedBeta ))
 ))
 
 (= (updateSTV $rule ($strength $confidence)) (
     let* (
         ((: Rule $id $ttv (STV $s $c) $comp $impl) $rule)
+        ($_ (println! (the stv in update $s $c $ttv)))
     ) (: Rule $id $ttv (STV $strength $confidence) $comp $impl)
 ))
 
 (= (updateRule $rule $reward) (
     let* (
-        ($ruleAction (extractRule Action $rule))
-        ((STV $s $c) (extractRule STV $rule))
+        ($ruleAction (eval (extractRule Action $rule)))
+        ((STV $s $c) (eval (extractRule STV $rule)))
         (($alpha $beta) (eval (stvToBeta ($s $c))))
         (($newAlpha $newBeta) (dynamicBetaUpdate $alpha $beta $reward))
         (($newStrength $newConfidence) (eval (betaToSTV ($newAlpha $newBeta))))
@@ -260,5 +265,18 @@
     )
 ))
 
+
+
+(= (add-atoms $space $values) 
+    (if (== $values ()) 
+        ()
+        (let* (
+            (($head $tail) (decons-atom $values))
+            ($_ (add-atom $space $head))
+        )
+            (add-atoms $space $tail)
+        )
+    )
+)
 ;; Update Atoms in a space
 (= (updateAtom $oatom $natom $space) (let $_ (remove-atom $space $oatom) (add-atom $space $natom)))

@@ -1,4 +1,4 @@
-!(import! &self ../../../utils)
+!(import! &self ../../../utils) ;; N.B: The path should be relative to the file you are calling from.
 
 !(bind! &psiRules (new-space))
 !(bind! &categoryIndex (new-space))
@@ -26,8 +26,7 @@
       ($rule (collapse (get-type $handle)))
       ;($_ (println! ("RULE TYPE" $rule)))
       )
-      ; No %Undefined% in PeTTa, so checking for empty list instead
-      (if (not (== $rule ())) 
+      (if (not (== $rule (%Undefined%))) 
             () 
             (
               let* (
@@ -71,7 +70,7 @@
                           (update-atom $space (: $ruleHandle (TTV 0 (STV 0.0 0.0))) (: $ruleHandle $tv)) 
                           () 
                     ))
-                  ($_ (update-atom $space (isExecuted $ruleHandle (DEFAULT_TV)) (isExecuted $ruleHandle (False (STV 0.0 1.0)))))
+                  ($_ (update-atom $space (isExecuted $ruleHandle (DEFAULT_TV)) (isExecuted $ruleHandle (FALSE_TV))))
 
                 )
                 (let $_ (if (== (size-atom $context) 1)
