@@ -10,13 +10,7 @@
         ($inductionResults ())
     
 
-        ; ($_ (println! (Abduction Results: $abductionResults)))
-        ; ($_ (println! (Conjunction Results: $conjunctionResults)))
-        ; ($_ (println! (Deduction Results: $deductionResults)))
-        ; ($_ (println! (Induction Results: $inductionResults)))
-        
         ($reasonedRules (eval (flattenList ($deductionResults $conjunctionResults $abductionResults $inductionResults))))
-        
         
         ;; Give them unique IDs, TTV, and Complexity
         ($prevRuleId (eval (getLatestRuleId $rules)))

@@ -14,7 +14,6 @@
             ($premise-two (eval (extractRule GoalSTV $rule)))
             ($premise-four (eval (extractRule STV $rule)))
             ($premises ($premise-one $premise-two $premise-four))
-            ($_ (println! ("Deduction premises: " $premise-one $premise-two $premise-four)))
             ($matchingRuleDeductions (eval (getMatchingPremises deduction $premises $rule $remRules)))
             ($restDeductions (deduction-helper $remRules))
         ) (union-atom $restDeductions $matchingRuleDeductions))
@@ -22,7 +21,7 @@
 
 (= (reason-ded $rule $matchingRule $premises) (
     let* (
-        ($randomNo 100) ;; TODO: Fix this
+        ($randomNo 100)
         ($ruleContext (eval (extractRule Context $rule)))
         ($matchingGoal (eval (extractRule Goal $matchingRule)))
         ($matchingGoalSTV (eval (extractRule GoalSTV $matchingRule)))

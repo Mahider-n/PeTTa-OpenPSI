@@ -26,7 +26,6 @@
             (($head $tail) (decons-atom $rules))
             ($matchingContext (eval (extractRule ContextValues $head)))
             ($matchingAction (eval (extractRule Action $head)))
-            ; ($_ (println! ("Matching context & action :" $matchingContext $matchingAction)))
             ($isContextSimilar (eval (areSimilar $ruleContext $matchingContext)))
             ($isActionSimilar (eval (areSimilar $ruleAction $matchingAction)))
             ($restMatches (findMatchingConjunctions $ruleContext $ruleAction $tail))
@@ -47,7 +46,7 @@
 
 (= (reason-conj $rule $matchingRule) (
     let* (
-        ($maxRuleId 200) ;; TODO: Fix this for rule IDs
+        ($maxRuleId 200)
 
         ($ruleGoal (eval (extractRule Goal $rule)))
         ($matchingRuleGoal (eval (extractRule Goal $matchingRule)))
