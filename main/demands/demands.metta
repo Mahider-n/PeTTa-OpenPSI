@@ -178,9 +178,8 @@
     )
 ))
 
-(= (updateDemandValue $space $demandName $urgValue) (
+(= (updateDemandValue $space $demandName $newValue) (
     let* (
-        ($newValue (- 1 $urgValue))
         ; ($_ (println! ("Updating Demand:" $demandName " to New Value:" $newValue)))
         ((demand $demandName $min $max $oldValue) (match $space (demand $demandName $min $max $oldValue) (demand $demandName $min $max $oldValue)))
         ($_ (remove-atom $space (demand $demandName $min $max $oldValue)))

@@ -118,25 +118,24 @@
 
 (= (perceptionToDemands $perceptionSpace $demandSpace)
    (let* (
-      ($hungerUrg (hungerUrgency $perceptionSpace))
-      ($healthUrg (healthUrgency $perceptionSpace))
-      ($safetyLvl (safetyLevel $perceptionSpace))
-      ($airUrg (airUrgency $perceptionSpace))
-      ($_ (println! ("Demands: " $safetyLvl $hungerUrg $healthUrg $airUrg)))
+      ($hungerVal (- 1 (hungerUrgency $perceptionSpace)))
+      ($healthVal (- 1 (healthUrgency $perceptionSpace)))
+      ($safetyVal (safetyLevel $perceptionSpace))
+      ($airVal (- 1 (airUrgency $perceptionSpace)))
+      ($_ (println! ("Demands: " $safetyVal $hungerVal $healthVal $airVal)))
       
-      ($safetyVal (- 1.0 $safetyLvl))
       
       ((demand hunger $hMin $hMax $hOld) (getDemandByName $demandSpace hunger))
-      ($_ (updateDemandValue $demandSpace hunger $hungerUrg))
+      ($_ (updateDemandValue $demandSpace hunger $hungerVal))
       
       ((demand safety $sMin $sMax $sOld) (getDemandByName $demandSpace safety))
       ($_ (updateDemandValue $demandSpace safety $safetyVal))
 
       ((demand energy $eMin $eMax $eOld) (getDemandByName $demandSpace energy))
-      ($_ (updateDemandValue $demandSpace energy $healthUrg))
+      ($_ (updateDemandValue $demandSpace energy $healthVal))
 
       ((demand breath $bMin $bMax $bOld) (getDemandByName $demandSpace breath))
-      ($_ (updateDemandValue $demandSpace breath $airUrg))
+      ($_ (updateDemandValue $demandSpace breath $airVal))
 
    )
    ()
