@@ -21,7 +21,7 @@
 
 (= (reason-ind $rule $matchingRule $premises) (
     let* (
-        ($randomNo 100) ;; TODO: Fix this
+        ($randomNo 100) 
         ($ruleContext (eval (extractRule Context $rule)))
         ($ruleGoal (eval (extractRule Goal $rule)))
         ($matchingContext (eval (extractRule Context $matchingRule)))
@@ -40,8 +40,6 @@
         
         ($newRuleSTV (eval (inductionFormula $premise-one $premise-two $premise-three $premise-four $premise-five)))
         ($newRule (: Rule $randomNo (TTV 1) $newRuleSTV (Complexity 1) (IMPLICATION (AND (Context $matchingGoalSTV (AND $matchingGoal)) (Action (SEQ_AND $matchingRuleAction))) (Goal $ruleGoalSTV (AND $ruleGoal)))))
-
-        ;; The inverse can be applied.
     ) $newRule
 ))
 

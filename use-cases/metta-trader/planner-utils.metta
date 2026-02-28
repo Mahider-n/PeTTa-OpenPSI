@@ -1,5 +1,5 @@
 ;; Utility functions for Thompson Sampling based action planner
-
+;; Taken from the rocca's implementation. 
 ;; Convert confidence to count
 (= (confidenceToCount $confidence) (
     / (* $confidence 800) (- 1 $confidence)
@@ -31,9 +31,6 @@
 ;; Math utilities for Metta
 (= (isBetween $val $low $high) (and (>= $val $low) (<= $val $high)))
 
-
-
-
 (= (getRandomInt $a $b) (py-call ("random.randint" $a $b)))
 (= (getRandom) (py-call ("random.random")))
 
@@ -55,7 +52,6 @@
         (sampleEngine $alpha $beta $a $b $gamma)
     )
 ))
-
 
 (= (betaSample $a $b) (
     let* (

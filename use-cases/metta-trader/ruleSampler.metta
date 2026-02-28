@@ -2,11 +2,8 @@
 (= (ruleSampler $rules $k) (
     let* (
         ($stvWithRules (map-atom $rules $rule ((extractRule STV $rule) $rule)))
-        ;; ($_ (println! (Stv With Rules: $stvWithRules)))
         ($betaWithRules (map-atom $stvWithRules ((STV $s $c) $rule) ((stvToBeta ($s $c)) $rule)))
-        ;; ($_ (println! (Beta with Rules: $betaWithRules)))
         ($sampledRules (map-atom $betaWithRules (($alpha $beta) $rule) ((betaSample $alpha $beta) $rule)))
-        ;; ($_ (println! (Sampled Rules: $sampledRules)))
     ) (get-top-k $k $sampledRules)
 ))
 

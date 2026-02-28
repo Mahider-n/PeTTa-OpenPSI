@@ -1,9 +1,14 @@
 ;; General Rule helpers
+
 (= (createRule $ruleId $ttv $rule) (
     let* (
         ($complexity (calculateComplexity $rule))
+        ; ($_ (println! (Rule $complexity)))
+
         ((: Rule $id $t $stv $comp $implication) $rule)
+        ; ($_ (println! (: Rule $id $t $stv $comp $implication)))
         ($newRule (: Rule $ruleId (TTV $ttv) $stv (Complexity $complexity) $implication))
+        ; ($_ (println! (New Rule $newRule)))
     ) $newRule
 ))
 
@@ -32,12 +37,15 @@
 ))
 
 ;; For now complexity is the number of actions in the rule
+
 (= (calculateComplexity $rule) (
     let* (
         ($action (extractRuleAction $rule))
         ($actionCount (size-atom $action))
     ) $actionCount
 ))
+
+;; This could be optimized by adding an atom that tracks the max TTV in the rule space instead of searching every time
 
 (= (getCurrentTimeCycleFromSpace $ruleSpace) (
     let* (
@@ -54,6 +62,8 @@
         ($currTTV (max-atom $ttvValues))
     ) (toInt $currTTV)
 ))
+
+;; 
 
 (= (getLatestRuleIdFromSpace $ruleSpace) (
     let* (
@@ -146,10 +156,13 @@
             $restMatches))
 ))
 
+
+;; (: processRules (-> Expression Number Number Expression))
 (= (processRules $rules $ruleId $ttv) (
     if (== $rules ())
         ()
         (let* (
+            ; ($_ (println! (Processing Rulingtons $rules)))
             (($head $tail) (decons-atom $rules))
             ($newRule (createRule $ruleId $ttv $head))
             ($nextRuleId (+ 1 $ruleId))
