@@ -11,8 +11,8 @@
 
 
 !(bind! &r (new-space)) 
-!(bind! &modulator-Space (new-space))
-!(bind! &demand-Space (new-space))
+!(bind! &modulatorSpace (new-space))
+!(bind! &demandSpace (new-space))
 
 
 (=(reverse $list $acc)  
@@ -63,11 +63,11 @@
 ; Plan Actions based on modulator and demand values
 
 ; modulators
-!(insert-modulators &modulator-Space)
+!(insert-modulators &modulatorSpace)
 
 ; fetch modulator value and plan the actions
 ; if selection-threshold is high, plan actions to hit the ball
-; !(let $st (fetch-modulator-val  &modulator-Space selection-threshold) 
+; !(let $st (fetch-modulator-val  &modulatorSpace selection-threshold) 
 ;         (if (>  $st 0.45) 
 ;             (let $planner (hillClimbingPlanner (Paddle is right) (Ball is hit) (TestedActions) () &r) (reverse $planner ()))
 ;             ()
@@ -76,11 +76,11 @@
 
 
 ; demands 
-!(addDemand &demand-Space energy 0.3)
+!(addDemand &demandSpace energy 0.3)
 
 ; fetch demands value and plan the actions
 ; if energy is low, plan actions to fill the fuel   
-; !(let $energy (fetch-demand-val &demand-Space energy) 
+; !(let $energy (fetch-demand-val &demandSpace energy) 
 ;         (if (<  $energy 0.5) 
 ;             (let $planner (hillClimbingPlanner (Fuel is low) (Fuel is high) (TestedActions) () &r) (reverse $planner ()))
 ;             ()
