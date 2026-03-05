@@ -67,7 +67,8 @@ def executeAction(actionName: str, *args):
             "jump": ActionType.JUMP,
             "place": ActionType.PLACE,
             "dig": ActionType.DIG,
-            "move_to": ActionType.MOVE_TO
+            "move_to": ActionType.MOVE_TO,
+            "build_shelter": ActionType.BUILD_SHELTER
         }
         
         # print("Mapped action key:", key)

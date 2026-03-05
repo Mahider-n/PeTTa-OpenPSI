@@ -235,6 +235,7 @@
     ) $res))
     ((eat) (py-call (utils.executeAction eat)))
     ((dig) (py-call (utils.executeAction dig)))
+    ((buildShelter) (py-call (utils.executeAction buildShelter)))
     ((checkBreathing) (if (isLowAirNow) (Low Air) (Air Stable)))
     ((searchForFood) (moveToRandomOffset -10 12))
 

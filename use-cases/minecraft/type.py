@@ -17,6 +17,7 @@ class ActionType(Enum):
     CROUCH = auto()
     DROP = auto()
     MOVE_TO = auto()
+    BUILD_SHELTER = auto()
 
 
 @dataclass
