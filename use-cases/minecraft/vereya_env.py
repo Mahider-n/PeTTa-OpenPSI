@@ -26,7 +26,7 @@ class VereyaEnvironment:
         self.mc: Optional[MCConnector] = None
         self.rob: Optional[RobustObserver] = None
         
-        self.grid_bounds = [[-10, 10], [-2, 3], [-10, 10]]
+        self.grid_bounds = [[-20, 20], [-2, 2], [-20, 20]]
         self.obs = mb.Observations(bAll=True)
         self.obs.gridNear = self.grid_bounds
         
@@ -36,7 +36,7 @@ class VereyaEnvironment:
         self.mission = mb.MissionXML(agentSections=[self.agentSection])
         self.mission.serverSection.initial_conditions.allowedmobs = "Pig Sheep Cow Chicken Ozelot Rabbit Villager Zombie Skeleton"
         
-        self.mission.setWorld(mb.defaultworld(seed='12345'))
+        self.mission.setWorld(mb.defaultworld(seed='12347'))
         self.actionHandlers = {
             ActionType.MOVE_FORWARD: self.doMoveForward,
             ActionType.TURN_LEFT: self.doTurnLeft,
@@ -51,6 +51,8 @@ class VereyaEnvironment:
             ActionType.JUMP: self.doJump,
             ActionType.DROP: self.doDrop,
             ActionType.BUILD_SHELTER: self.doBuildShelter,
+            ActionType.SEEK_SHELTER: self.doSeekShelter,
+            ActionType.ENTER_SHELTER: self.doEnterShelter,
         }
 
     def sendHoldCommand(self, onCommand: str, holdSeconds: float, offCommand: Optional[str] = None, settleSeconds: float = 0.0):
@@ -91,14 +93,14 @@ class VereyaEnvironment:
     def executeAction(self, actionType: ActionType):
         if not self.connected:
             print("Not connected to Vereya environment.")
-            return
+            return []
 
         handler = self.actionHandlers.get(actionType)
         if handler is not None:
             return handler()
         
         print(f"Unknown action type: {actionType}")
-        return
+        return []
 
     def doMoveForward(self):
         return actionOps.doMoveForward(self)
@@ -136,10 +138,16 @@ class VereyaEnvironment:
     def doBuildShelter(self):
         return shelterOps.buildShelter(self)
 
+    def doSeekShelter(self):
+        return shelterOps.seekShelter(self)
+
+    def doEnterShelter(self):
+        return shelterOps.enterShelter(self)
+
     def moveTo(self, target_x, target_y, target_z):
         if not self.connected or not self.rob:
             print("Not connected to Vereya environment.")
-            return
+            return []
 
         self.rob.observeProcCached()
         initialPos = self.rob.getCachedObserve('getAgentPos')
@@ -151,7 +159,7 @@ class VereyaEnvironment:
         
         if not initialPos or not rawGrid:
             print("Failed to get initial position or grid data")
-            return
+            return []
 
         gridMap = Navigation.parseGrid(rawGrid, self.grid_bounds)
         goal_rel = (
@@ -169,7 +177,7 @@ class VereyaEnvironment:
         path = Navigation.aStar((0, 0, 0), goal_rel, gridMap)
         if not path:
             print("No path found to target!")
-            return
+            return []
 
         print(f"Executing path: {path}")
         

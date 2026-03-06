@@ -76,6 +76,54 @@ def secureEntrance(mc, doorway, outsideButton, insidePressurePlate):
     return True
 
 
+def setShelterState(env, base_x: int, base_y: int, base_z: int, doorway, outsideButton, insidePressurePlate):
+    env.shelterState = {
+        "center": (base_x, base_y, base_z),
+        "doorway": doorway,
+        "outsideButton": outsideButton,
+        "insidePressurePlate": insidePressurePlate,
+        "insideTarget": (doorway[0], doorway[1], doorway[2] + 1),
+    }
+
+
+def hasShelter(env) -> bool:
+    return bool(getattr(env, "shelterState", None))
+
+
+def setDoorOpen(mc, doorway, is_open: bool):
+    x, y, z = doorway
+    flag = "true" if is_open else "false"
+    lower = f"iron_door[half=lower,facing=south,hinge=left,open={flag},powered={flag}]"
+    upper = f"iron_door[half=upper,facing=south,hinge=left,open={flag},powered={flag}]"
+    placeBlock(mc, x, y, z, lower)
+    placeBlock(mc, x, y + 1, z, upper)
+
+
+def enterShelter(env):
+    if not env.connected or not env.rob or not env.mc:
+        return
+    if not hasShelter(env):
+        return "No Shelter Known"
+
+    state = env.shelterState
+    doorway = state["doorway"]
+    target = state["insideTarget"]
+
+    # Open doorway, move inside, then close for safety.
+    setDoorOpen(env.mc, doorway, True)
+    if hasattr(env, "moveTo"):
+        env.moveTo(float(target[0]), float(target[1]), float(target[2]))
+    time.sleep(0.2)
+    setDoorOpen(env.mc, doorway, False)
+    return "Entered Shelter"
+
+
+def seekShelter(env):
+    if hasShelter(env):
+        return enterShelter(env)
+    return buildShelter(env)
+
+
 def buildShelter(env):
     if not env.connected or not env.rob or not env.mc:
         return
@@ -106,4 +154,5 @@ def buildShelter(env):
     if not secureEntrance(env.mc, doorway, outsideButton, insidePressurePlate):
         return
 
+    setShelterState(env, base_x, base_y, base_z, doorway, outsideButton, insidePressurePlate)
     return "Shelter Built"

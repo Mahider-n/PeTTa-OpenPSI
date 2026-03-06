@@ -70,55 +70,30 @@
         )
     )
 
-    ;; Rule 4: Emergency escape at night when hostile entities are close
+    ;; Rule 4: Emergency night survival under threat and low health
     (: Rule 4
         (TTV 0)
         (STV 0.95 0.9)
-        (Complexity 6)
+        (Complexity 7)
         (IMPLICATION
             (AND
                 (Context (STV 1.0 1.0) (AND (
                     (isNightTime (STV 1.0 1.0))
                     (hostileNearby (STV 1.0 0.95))
-                    (lowHealth (STV 1.0 0.9))
-                )))
-                (Action (SEQ_AND (
-                    (turnAwayFromThreat)
-                    (sprintForward)
-                    (findCover)
-                )))
-            )
-            (Goal (STV 1.0 0.95) (AND (
-                (shelterVisible (STV 1.0 1.0))
-            )))
-        )
-    )
-
-    ;; Rule 5: Create distance from hostiles when health is not critical
-    (: Rule 5
-        (TTV 0)
-        (STV 0.9 0.85)
-        (Complexity 4)
-        (IMPLICATION
-            (AND
-                (Context (STV 1.0 1.0) (AND (
-                    (isNightTime (STV 1.0 1.0))
-                    (hostileNearby (STV 1.0 0.9))
-                    (safeHealth (STV 1.0 0.8))
                 )))
                 (Action (SEQ_AND (
                     (flee)
-                    (wander)
+                    (seekShelter)
                 )))
             )
-            (Goal (STV 1.0 0.9) (AND (
-                (shelterVisible (STV 1.0 1.0))
+            (Goal (STV 1.0 0.95) (AND (
+                (shelterSecured (STV 1.0 1.0))
             )))
         )
     )
 
-    ;; Rule 6: Navigate and scan for a safer position when it is night but no direct threat
-    (: Rule 6
+    ;; Rule 5: Build shelter proactively at night when immediate threat is low
+    (: Rule 5
         (TTV 0)
         (STV 0.82 0.78)
         (Complexity 6)
@@ -129,20 +104,18 @@
                     (noHostilesNearby (STV 1.0 0.85))
                 )))
                 (Action (SEQ_AND (
-                    (chooseDirection)
-                    (walkForward)
-                    (scanEnvironment)
+                    (seekShelter)
                 )))
             )
             (Goal (STV 1.0 0.88) (AND (
-                (shelterVisible (STV 1.0 1.0))
+                (shelterSecured (STV 1.0 1.0))
             )))
         )
     )
 
 
-    ;; Rule 7: Recover energy by eating when health is low and food is available
-    (: Rule 7
+    ;; Rule 6: Recover energy by eating when health is low and food is available
+    (: Rule 6
         (TTV 0)
         (STV 0.95 0.9)
         (Complexity 4)
@@ -162,8 +135,8 @@
         )
     )
 
-    ;; Rule 8: Acquire food first when low health and no edible inventory exists
-    (: Rule 8
+    ;; Rule 7: Acquire food first when low health and no edible inventory exists
+    (: Rule 7
         (TTV 0)
         (STV 0.85 0.8)
         (Complexity 6)
@@ -186,8 +159,8 @@
         )
     )
 
-    ;; Rule 9: Explore during daytime when basic survival conditions are stable
-    (: Rule 9
+    ;; Rule 8: Explore during daytime when basic survival conditions are stable
+    (: Rule 8
         (TTV 0)
         (STV 0.8 0.72)
         (Complexity 5)
@@ -200,7 +173,6 @@
                     (safeHealth (STV 1.0 0.85))
                 )))
                 (Action (SEQ_AND (
-                    (walkForward)
                     (scanEnvironment)
                     (wander)
                 )))
@@ -211,30 +183,8 @@
         )
     )
 
-    ;; Rule 10: Low-risk curiosity-driven roaming
+    ;; Rule 10: Prioritize surfacing when oxygen is low
     (: Rule 10
-        (TTV 0)
-        (STV 0.7 0.65)
-        (Complexity 3)
-        (IMPLICATION
-            (AND
-                (Context (STV 1.0 1.0) (AND (
-                    (isDayTime (STV 1.0 1.0))
-                    (curiosityHigh (STV 1.0 0.7))
-                )))
-                (Action (SEQ_AND (
-                    (wander)
-                    (scanEnvironment)
-                )))
-            )
-            (Goal (STV 1.0 0.75) (AND (
-                (Explore (STV 1.0 1.0))
-            )))
-        )
-    )
-
-    ;; Rule 11: Prioritize surfacing when oxygen is low
-    (: Rule 11
         (TTV 0)
         (STV 0.98 0.9)
         (Complexity 4)
