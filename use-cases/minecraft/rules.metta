@@ -70,45 +70,45 @@
         )
     )
 
-    ;; Rule 4: Emergency night survival under threat and low health
+    ;; Rule 4: Under direct threat, use known shelter immediately
     (: Rule 4
         (TTV 0)
         (STV 0.95 0.9)
-        (Complexity 7)
+        (Complexity 5)
         (IMPLICATION
             (AND
                 (Context (STV 1.0 1.0) (AND (
-                    (isNightTime (STV 1.0 1.0))
                     (hostileNearby (STV 1.0 0.95))
+                    (hasShelterKnown (STV 1.0 0.9))
                 )))
                 (Action (SEQ_AND (
-                    (flee)
                     (seekShelter)
                 )))
             )
             (Goal (STV 1.0 0.95) (AND (
-                (shelterSecured (STV 1.0 1.0))
+                (shelterUnderThreat (STV 1.0 1.0))
             )))
         )
     )
 
-    ;; Rule 5: Build shelter proactively at night when immediate threat is low
+    ;; Rule 5: Under direct threat with no known shelter, build then enter
     (: Rule 5
         (TTV 0)
-        (STV 0.82 0.78)
-        (Complexity 6)
+        (STV 0.9 0.85)
+        (Complexity 7)
         (IMPLICATION
             (AND
                 (Context (STV 1.0 1.0) (AND (
-                    (isNightTime (STV 1.0 1.0))
-                    (noHostilesNearby (STV 1.0 0.85))
+                    (hostileNearby (STV 1.0 0.95))
+                    (noShelterKnown (STV 1.0 0.9))
                 )))
                 (Action (SEQ_AND (
-                    (seekShelter)
+                    (buildShelter)
+                    (enterShelter)
                 )))
             )
-            (Goal (STV 1.0 0.88) (AND (
-                (shelterSecured (STV 1.0 1.0))
+            (Goal (STV 1.0 0.95) (AND (
+                (shelterUnderThreat (STV 1.0 1.0))
             )))
         )
     )
@@ -204,8 +204,76 @@
         )
     )
 
+    ;; Rule 11: Night-time safety with known shelter (no immediate hostile)
+    (: Rule 11
+        (TTV 0)
+        (STV 0.9 0.85)
+        (Complexity 5)
+        (IMPLICATION
+            (AND
+                (Context (STV 1.0 1.0) (AND (
+                    (isNightTime (STV 1.0 1.0))
+                    (noHostilesNearby (STV 1.0 0.85))
+                    (hasShelterKnown (STV 1.0 0.9))
+                )))
+                (Action (SEQ_AND (
+                    (seekShelter)
+                )))
+            )
+            (Goal (STV 1.0 0.9) (AND (
+                (shelterUnderThreat (STV 1.0 1.0))
+            )))
+        )
+    )
+
+    ;; Rule 12: Night-time safety with no known shelter (build then enter)
+    (: Rule 12
+        (TTV 0)
+        (STV 0.88 0.82)
+        (Complexity 6)
+        (IMPLICATION
+            (AND
+                (Context (STV 1.0 1.0) (AND (
+                    (isNightTime (STV 1.0 1.0))
+                    (noHostilesNearby (STV 1.0 0.85))
+                    (noShelterKnown (STV 1.0 0.9))
+                )))
+                (Action (SEQ_AND (
+                    (buildShelter)
+                    (enterShelter)
+                )))
+            )
+            (Goal (STV 1.0 0.88) (AND (
+                (shelterUnderThreat (STV 1.0 1.0))
+            )))
+        )
+    )
+
+    ;; Rule 13: Daytime proactive shelter preparation
+    (: Rule 13
+        (TTV 0)
+        (STV 0.8 0.75)
+        (Complexity 5)
+        (IMPLICATION
+            (AND
+                (Context (STV 1.0 1.0) (AND (
+                    (isDayTime (STV 1.0 1.0))
+                    (noHostilesNearby (STV 1.0 0.9))
+                    (noShelterKnown (STV 1.0 0.85))
+                )))
+                (Action (SEQ_AND (
+                    (buildShelter)
+                )))
+            )
+            (Goal (STV 1.0 0.85) (AND (
+                (shelterPrepared (STV 1.0 1.0))
+            )))
+        )
+    )
+
   ))
   (add-atom $space $rules)
 ))
 
 !(addMinecraftRules &ruleSpace)
+

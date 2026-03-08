@@ -40,7 +40,8 @@ def shelterPlan(base_x: int, base_y: int, base_z: int, r: int = SHELTER_RADIUS):
     ]
 
     doorway = (door_x, base_y, door_z)
-    outside_button = (door_x + 1, base_y + 1, door_z - 1)
+    # Outside and inside pressure plates for reliable automatic door opening.
+    outside_button = (door_x, base_y, door_z - 1)
     inside_pressure_plate = (door_x, base_y, door_z + 1)
 
     return floor, walls, roof, torches, doorway, outside_button, inside_pressure_plate
@@ -66,8 +67,8 @@ def secureEntrance(mc, doorway, outsideButton, insidePressurePlate):
             return False
 
     bx, by, bz = outsideButton
-    if not placeBlock(mc, bx, by, bz, "stone_button"):
-        print("Warning: outside stone_button placement failed")
+    if not placeBlock(mc, bx, by, bz, "stone_pressure_plate"):
+        print("Warning: outside stone_pressure_plate placement failed")
 
     px, py, pz = insidePressurePlate
     if not placeBlock(mc, px, py, pz, "stone_pressure_plate"):
@@ -82,7 +83,9 @@ def setShelterState(env, base_x: int, base_y: int, base_z: int, doorway, outside
         "doorway": doorway,
         "outsideButton": outsideButton,
         "insidePressurePlate": insidePressurePlate,
-        "insideTarget": (doorway[0], doorway[1], doorway[2] + 1),
+        # Move one block beyond the inside pressure plate for stable path targets.
+        "insideTarget": (doorway[0], doorway[1], doorway[2] + 2),
+        "outsideTarget": (doorway[0], doorway[1], doorway[2] - 2),
     }
 
 
@@ -101,9 +104,9 @@ def setDoorOpen(mc, doorway, is_open: bool):
 
 def enterShelter(env):
     if not env.connected or not env.rob or not env.mc:
-        return
+        return None
     if not hasShelter(env):
-        return "No Shelter Known"
+        return None
 
     state = env.shelterState
     doorway = state["doorway"]
@@ -111,11 +114,18 @@ def enterShelter(env):
 
     # Open doorway, move inside, then close for safety.
     setDoorOpen(env.mc, doorway, True)
+    move_result = None
     if hasattr(env, "moveTo"):
-        env.moveTo(float(target[0]), float(target[1]), float(target[2]))
+        move_result = env.moveTo(float(target[0]), float(target[1]), float(target[2]))
+
     time.sleep(0.2)
-    setDoorOpen(env.mc, doorway, False)
-    return "Entered Shelter"
+
+    entered = move_result == "Reached Destination"
+    if entered:
+        setDoorOpen(env.mc, doorway, False)
+        return "Entered Shelter"
+
+    return None
 
 
 def seekShelter(env):
@@ -133,10 +143,16 @@ def buildShelter(env):
     if not pos:
         print("Cannot read agent position.")
         return
+    
+    yaw_deg = float(pos[4]) if len(pos) > 4 else 0.0
+    yaw_rad = math.radians(yaw_deg)
+    offset = SHELTER_RADIUS + 2
+    fwd_x = -math.sin(yaw_rad)
+    fwd_z = math.cos(yaw_rad)
 
-    base_x = int(math.floor(pos[0]))
+    base_x = int(math.floor(pos[0] + fwd_x * offset))
     base_y = int(math.floor(pos[1]))
-    base_z = int(math.floor(pos[2]))
+    base_z = int(math.floor(pos[2] + fwd_z * offset))
     floor, walls, roof, torches, doorway, outsideButton, insidePressurePlate = shelterPlan(base_x, base_y, base_z)
 
     for x, y, z in floor:

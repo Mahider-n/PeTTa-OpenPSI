@@ -186,6 +186,11 @@ def getAirLevel() -> str:
     obs = _getRawObservation()
     return str(obs.air if obs is not None and obs.air is not None else 300.0)
 
+def hasShelterKnown() -> str:
+    if not currentEnv:
+        return "False"
+    return "True" if bool(getattr(currentEnv, "shelterState", None)) else "False"
+
 def sortEntities(*args) -> list:
     if not args:
         return []

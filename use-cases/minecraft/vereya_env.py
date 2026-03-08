@@ -36,7 +36,7 @@ class VereyaEnvironment:
         self.mission = mb.MissionXML(agentSections=[self.agentSection])
         self.mission.serverSection.initial_conditions.allowedmobs = "Pig Sheep Cow Chicken Ozelot Rabbit Villager Zombie Skeleton"
         
-        self.mission.setWorld(mb.defaultworld(seed='12347'))
+        self.mission.setWorld(mb.defaultworld(seed='12347', forceReset=False))
         self.actionHandlers = {
             ActionType.MOVE_FORWARD: self.doMoveForward,
             ActionType.TURN_LEFT: self.doTurnLeft,
@@ -69,6 +69,22 @@ class VereyaEnvironment:
             print("Mission accepted. Waiting for spawn...")
             time.sleep(2)
             self.connected = True
+
+            # The following commands are for testing purposes only
+            # to ensure the agent has food and can eat.
+            # Remove manual inteventions for a more naturalistic environment.
+            self.mc.sendCommand("chat /give @p apple 2")
+            time.sleep(1)
+            
+            self.mc.sendCommand("chat /give @p bread 2")
+            time.sleep(1)
+            
+            self.mc.sendCommand("chat /give @p glow_berries 2")
+            time.sleep(1)
+            
+            self.mc.sendCommand("chat /effect give @p minecraft:hunger 10 50 true")
+            time.sleep(1)
+
             return True
         except Exception as e:
             print(f"Failed to connect to Vereya: {e}")

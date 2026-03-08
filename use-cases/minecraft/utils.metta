@@ -5,7 +5,9 @@
 (= (minecraftGoalSelector $x) (
   case $x (
     (hunger (Goal hasFood 1.0 0.9))
-    (safety (Goal shelterSecured 1.0 0.9))
+    (safety (if (or (isNightNow) (hasHostileNearbyNow))
+                (Goal shelterUnderThreat 1.0 0.95)
+                (Goal shelterPrepared 1.0 0.85)))
     (curiosity (Goal Explore 1.0 0.5))
     (energy (Goal healthIncreasing 1.0 0.9))
     (breath (Goal breathableAir 1.0 0.95))
@@ -13,7 +15,7 @@
 )
 
 
-(= (hungerThreshold) 10)
+(= (hungerThreshold) 15)
 
 (= (lowHealthThreshold) 10)
 
@@ -68,6 +70,15 @@
          False
          (>= $vals (curiosityThreshold)))))
 
+(= (hasShelterKnownNow)
+   (let $v (sread (py-call (utils.hasShelterKnown)))
+      (if (== $v ())
+         False
+         $v)))
+
+(= (noShelterKnownNow)
+   (not (hasShelterKnownNow)))
+
 (= (airNow)
    (let $vals (collapse (match &perceptionSpace (air $airVal) $airVal))
       (if (== $vals ())
@@ -100,6 +111,8 @@
       (foodAnimalNearby (hasFoodAnimalNearbyNow))
       (noFoodAnimalNearby (not (hasFoodAnimalNearbyNow)))
       (curiosityHigh (isCuriosityHighNow))
+      (hasShelterKnown (hasShelterKnownNow))
+      (noShelterKnown (noShelterKnownNow))
       (lowAir (isLowAirNow))
       (safeAir (not (isLowAirNow)))
       ($_ False)
@@ -270,6 +283,8 @@
             (let ($x $y $z) $pos
             (py-call (utils.executeAction move_to $x $y $z))))
       ))
+
+    ((collectFood) (performSingleAction (collectItem)))
 
     ((scanEnvironment) (performSingleAction (lookAround)))
 

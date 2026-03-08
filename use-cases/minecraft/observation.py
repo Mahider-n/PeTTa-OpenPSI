@@ -46,7 +46,8 @@ def buildObservation(env) -> Observation:
     if worldTime is not None:
         worldTime = int(worldTime)
         timeMod = worldTime % 24000
-        is_day = timeMod < 12000
+        isNight = 13000 <= timeMod < 23000
+        is_day = not isNight
     else:
         worldTime = 6000
         is_day = True
