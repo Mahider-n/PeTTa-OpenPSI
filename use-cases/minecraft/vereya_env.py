@@ -5,6 +5,7 @@ from typing import List, Dict, Any, Optional, Callable
 from type import ActionType, Observation
 from navigation import Navigation
 import actions as actionOps
+import breathing as breathingOps
 import inventory as inventoryOps
 import observation as observationOps
 import shelter as shelterOps
@@ -26,7 +27,7 @@ class VereyaEnvironment:
         self.mc: Optional[MCConnector] = None
         self.rob: Optional[RobustObserver] = None
         
-        self.grid_bounds = [[-20, 20], [-2, 2], [-20, 20]]
+        self.grid_bounds = [[-30, 30], [-5, 5], [-30, 30]]
         self.obs = mb.Observations(bAll=True)
         self.obs.gridNear = self.grid_bounds
         
@@ -53,6 +54,7 @@ class VereyaEnvironment:
             ActionType.BUILD_SHELTER: self.doBuildShelter,
             ActionType.SEEK_SHELTER: self.doSeekShelter,
             ActionType.ENTER_SHELTER: self.doEnterShelter,
+            ActionType.FIND_GROUND: self.doFindGround,
         }
 
     def sendHoldCommand(self, onCommand: str, holdSeconds: float, offCommand: Optional[str] = None, settleSeconds: float = 0.0):
@@ -74,16 +76,16 @@ class VereyaEnvironment:
             # to ensure the agent has food and can eat.
             # Remove manual inteventions for a more naturalistic environment.
             self.mc.sendCommand("chat /give @p apple 2")
-            time.sleep(1)
+            time.sleep(0.1)
             
             self.mc.sendCommand("chat /give @p bread 2")
-            time.sleep(1)
+            time.sleep(0.1)
             
             self.mc.sendCommand("chat /give @p glow_berries 2")
-            time.sleep(1)
+            time.sleep(0.1)
             
             self.mc.sendCommand("chat /effect give @p minecraft:hunger 10 50 true")
-            time.sleep(1)
+            time.sleep(0.1)
 
             return True
         except Exception as e:
@@ -160,6 +162,9 @@ class VereyaEnvironment:
     def doEnterShelter(self):
         return shelterOps.enterShelter(self)
 
+    def doFindGround(self):
+        return breathingOps.findGroundWhileSwimming(self)
+    
     def moveTo(self, target_x, target_y, target_z):
         if not self.connected or not self.rob:
             print("Not connected to Vereya environment.")

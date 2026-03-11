@@ -20,6 +20,7 @@ class ActionType(Enum):
     BUILD_SHELTER = auto()
     SEEK_SHELTER = auto()
     ENTER_SHELTER = auto()
+    FIND_GROUND = auto()
 
 
 @dataclass

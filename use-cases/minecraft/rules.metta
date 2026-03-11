@@ -194,7 +194,7 @@
                     (lowAir (STV 1.0 0.98))
                 )))
                 (Action (SEQ_AND (
-                    (surfaceForAir)
+                    (findGround)
                     (checkBreathing)
                 )))
             )

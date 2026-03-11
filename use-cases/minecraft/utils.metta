@@ -88,6 +88,11 @@
 (= (isLowAirNow)
    (< (airNow) (lowAirThreshold)))
 
+(= (onGroundNow)
+   (let $vals (collapse (match &perceptionSpace (onGround $g) $g))
+      (if (== $vals ())
+         True
+         (car-atom $vals))))
 
 (= (contextAtomName $ctxAtom)
    (case $ctxAtom (
@@ -244,6 +249,7 @@
     ((mineResource) (py-call (utils.executeAction dig)))
     ((walkForward) (py-call (utils.executeAction move_forward)))
     ((surfaceForAir) (surfaceForAirLoop 3))
+    ((findGround) (py-call (utils.executeAction find_ground)))
     ((recoverMobility) (let* (
         ($_ (py-call (utils.executeAction turn_left)))
         ($res (moveToRandomOffset 1 5))
@@ -253,7 +259,7 @@
     ((eat) (py-call (utils.executeAction eat)))
     ((dig) (py-call (utils.executeAction dig)))
     ((buildShelter) (py-call (utils.executeAction build_shelter)))
-    ((checkBreathing) (if (isLowAirNow) (Low Air) (Air Stable)))
+    ((checkBreathing) (if (and (not (isLowAirNow)) (onGroundNow)) (Air Stable) (Breathing Recovery)))
     ((searchForFood) (moveToRandomOffset -10 12))
 
     ((wander) (moveToRandomOffset -20 20))
