@@ -39,12 +39,17 @@ def shelterPlan(base_x: int, base_y: int, base_z: int, r: int = SHELTER_RADIUS):
         (base_x + (r - 1), base_y, base_z + (r - 1)),
     ]
 
+    bed = [
+        (base_x - (r - 1), base_y, base_z, "lime_bed[part=foot,facing=south,occupied=false]"),
+        (base_x - (r - 1), base_y, base_z + 1, "lime_bed[part=head,facing=south,occupied=false]"),
+    ]
+
     doorway = (door_x, base_y, door_z)
     # Outside and inside pressure plates for reliable automatic door opening.
     outside_button = (door_x, base_y, door_z - 1)
     inside_pressure_plate = (door_x, base_y, door_z + 1)
 
-    return floor, walls, roof, torches, doorway, outside_button, inside_pressure_plate
+    return floor, walls, roof, torches, doorway, outside_button, inside_pressure_plate, bed
 
 
 def placeBlock(mc, x: int, y: int, z: int, block_type: str) -> bool:
@@ -153,7 +158,7 @@ def buildShelter(env):
     base_x = int(math.floor(pos[0] + fwd_x * offset))
     base_y = int(math.floor(pos[1]))
     base_z = int(math.floor(pos[2] + fwd_z * offset))
-    floor, walls, roof, torches, doorway, outsideButton, insidePressurePlate = shelterPlan(base_x, base_y, base_z)
+    floor, walls, roof, torches, doorway, outsideButton, insidePressurePlate, bed = shelterPlan(base_x, base_y, base_z)
 
     for x, y, z in floor:
         if not placeBlock(env.mc, x, y, z, SHELTER_MATERIAL):
@@ -167,6 +172,10 @@ def buildShelter(env):
     for x, y, z in torches:
         if not placeBlock(env.mc, x, y, z, "torch"):
             return
+    for x, y, z, block_type in bed:
+        if not placeBlock(env.mc, x, y, z, block_type):
+            return
+
     if not secureEntrance(env.mc, doorway, outsideButton, insidePressurePlate):
         return
 
