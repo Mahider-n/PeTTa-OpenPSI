@@ -8,7 +8,17 @@ COMMON_PASSABLE = {
     "short_grass", "tall_grass", "seagrass", "tall_seagrass",
     "kelp", "kelp_plant", "sugar_cane", "fern", "large_fern",
     "snow", "vine", "lily_pad", "dead_bush", "dandelion", "poppy",
-    "brown_mushroom", "red_mushroom",
+    "brown_mushroom", "red_mushroom", "sugar_cane",
+}
+
+UNSAFE_SUPPORT_BLOCKS = {
+    "cactus",
+    "magma_block",
+    "lava",
+    "flowing_lava",
+    "fire",
+    "soul_fire",
+    "sweet_berry_bush",
 }
 
 
@@ -104,14 +114,13 @@ def isPassableBlock(name, passableSet):
 
 def classifyExitCell(feet, head, below, passableSet):
     feetWater = isWater(feet)
-    headWater = isWater(head)
-    if not isPassableBlock(feet, passableSet) or not isPassableBlock(head, passableSet):
+    if below in AIR_BLOCKS or below in passableSet or isWater(below) or below in UNSAFE_SUPPORT_BLOCKS:
         return None
-    if below in passableSet or isWater(below):
-        return None
-    if (not feetWater) and (not headWater):
+    
+    if feet in AIR_BLOCKS and head in AIR_BLOCKS:
         return "dry_land"
-    if feetWater and (not headWater):
+    
+    if feetWater and head in AIR_BLOCKS:
         return "shallow_edge"
     return None
 
