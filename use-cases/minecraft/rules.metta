@@ -32,13 +32,12 @@
             (AND
                 (Context (STV 1.0 1.0) (AND (
                     (isHungry (STV 1.0 0.95))
-                    (foodAnimalNearby (STV 1.0 0.9))
+                    (foodNearby (STV 1.0 0.9))
                     (noEdibleFoodInInventory (STV 1.0 0.85))
                 )))
                 (Action (SEQ_AND (
                     (moveToFood)
-                    (dig)
-                    (collectFood)
+                    (eatFood)
                 )))
             )
             (Goal (STV 1.0 0.9) (AND (
@@ -57,11 +56,10 @@
                 (Context (STV 1.0 1.0) (AND (
                     (isHungry (STV 1.0 0.95))
                     (noEdibleFoodInInventory (STV 1.0 0.85))
-                    (noFoodAnimalNearby (STV 1.0 0.8))
+                    (noFoodNearby (STV 1.0 0.8))
                 )))
                 (Action (SEQ_AND (
                     (searchForFood)
-                    (wander)
                 )))
             )
             (Goal (STV 1.0 0.85) (AND (
@@ -145,12 +143,11 @@
                 (Context (STV 1.0 1.0) (AND (
                     (lowHealth (STV 1.0 0.95))
                     (noEdibleFoodInInventory (STV 1.0 0.9))
-                    (foodAnimalNearby (STV 1.0 0.85))
+                    (foodNearby (STV 1.0 0.85))
                 )))
                 (Action (SEQ_AND (
                     (moveToFood)
-                    (dig)
-                    (collectFood)
+                    (eatFood)
                 )))
             )
             (Goal (STV 1.0 0.85) (AND (

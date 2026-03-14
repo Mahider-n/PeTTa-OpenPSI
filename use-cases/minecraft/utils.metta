@@ -15,7 +15,7 @@
 )
 
 
-(= (hungerThreshold) 15)
+(= (hungerThreshold) 10)
 
 (= (lowHealthThreshold) 10)
 
@@ -58,8 +58,8 @@
 (= (hasEdibleFoodNow)
    (eval (hasEdibleFood &perceptionSpace)))
 
-(= (hasFoodAnimalNearbyNow)
-   (eval (hasFoodAnimalNearby &perceptionSpace)))
+(= (hasFoodNearbyNow)
+   (eval (hasFoodNearby &perceptionSpace)))
 
 (= (isCuriosityHighNow)
    (let* (
@@ -113,8 +113,8 @@
       (noHostilesNearby (not (hasHostileNearbyNow)))
       (hasEdibleFoodInInventory (hasEdibleFoodNow))
       (noEdibleFoodInInventory (not (hasEdibleFoodNow)))
-      (foodAnimalNearby (hasFoodAnimalNearbyNow))
-      (noFoodAnimalNearby (not (hasFoodAnimalNearbyNow)))
+      (foodNearby (hasFoodNearbyNow))
+      (noFoodNearby (not (hasFoodNearbyNow)))
       (curiosityHigh (isCuriosityHighNow))
       (hasShelterKnown (hasShelterKnownNow))
       (noShelterKnown (noShelterKnownNow))
@@ -234,7 +234,7 @@
    
     ((moveToFood) (
       let* (
-        ($pos (eval (getNearestFoodAnimalPos &perceptionSpace)))
+        ($pos (eval (getNearestFoodPos &perceptionSpace)))
         ($_ (println! ("Moving to food at position:" $pos)))
         )
       (if (== $pos ())
@@ -295,7 +295,7 @@
     ((scanEnvironment) (performSingleAction (lookAround)))
 
     ((lookAround) (let* (
-        ($leftRes (py-call (utils.executeAction turn_left)))
+      ;   ($leftRes (py-call (utils.executeAction turn_left)))
         ($rightRes (py-call (utils.executeAction turn_right)))
         ($_ (println! "Looked around"))
     ) (LookedAround)))
