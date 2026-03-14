@@ -1,3 +1,30 @@
+(= (operator) (eval (import operator)))
+
+(= (mod $val $mod)
+   (py-call (".mod" (operator) $val $mod)))
+
+(= (isModuloZero $step $n)
+   (== (mod $step $n) 0))
+
+(= (applyIterationEnvironment $step)
+   (let* (
+      ($timePulse (isModuloZero $step 2))
+      ($_ (if $timePulse
+               (py-call (utils.serverCommand "time add 1000"))
+               ()))
+               
+      ($hungerPulse (isModuloZero $step 5))
+      ($_ (if $hungerPulse
+               (py-call (utils.serverCommand "effect give @p minecraft:hunger 10 60 true"))
+               ()))
+               
+      ($nightThreatPulse (isModuloZero $step 8))
+      ($_ (if (and $nightThreatPulse (isNightNow))
+               (py-call (utils.serverCommand "summon zombie ~6 ~ ~6"))
+               ()))
+   )
+   ()
+))
 
 (= (getRules) (collapse (get-atoms &ruleSpace)))
 

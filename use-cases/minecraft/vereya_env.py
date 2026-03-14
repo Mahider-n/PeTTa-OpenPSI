@@ -34,8 +34,11 @@ class VereyaEnvironment:
         self.agentHandlers = mb.AgentHandlers(observations=self.obs)
         
         self.agentSection = mb.AgentSection(name='OpenPsiAgent', agenthandlers=self.agentHandlers)
+        start = [-214.0, 67.0, 172.0, 1.0, -177.0]
+        self.agentSection.agentstart = mb.AgentStart(start)
         self.mission = mb.MissionXML(agentSections=[self.agentSection])
         self.mission.serverSection.initial_conditions.allowedmobs = "Pig Sheep Cow Chicken Ozelot Rabbit Villager Zombie Skeleton"
+        # self.mission.serverSection.initial_conditions.time_start = "10000"
         
         self.mission.setWorld(mb.defaultworld(seed='12347', forceReset=False))
         self.actionHandlers = {

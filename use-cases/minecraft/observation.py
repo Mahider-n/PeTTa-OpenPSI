@@ -43,13 +43,23 @@ def buildObservation(env) -> Observation:
         action_status = "unknown"
 
     worldTime = env.mc.getFullStat("WorldTime")
+    dayTime = int(dayTime) if dayTime is not None else None
+    worldStart = int(env.mission.serverSection.initial_conditions.time_start or 0)
     if worldTime is not None:
         worldTime = int(worldTime)
-        timeMod = worldTime % 24000
+        timeOffset = int(getattr(env, "timeAddOffset", 0))
+        dayTime = worldTime + worldStart + timeOffset
+        timeMod = dayTime % 24000
         isNight = 13000 <= timeMod < 23000
         is_day = not isNight
+        print(
+            f"DayTime: {dayTime},"
+            f"WorldTime: {worldTime}, WorldStart: {worldStart}, TimeOffset: {timeOffset}"
+        )
+        print(f"Time mod: {timeMod}, Is day: {is_day}")
+        timeValue = dayTime
     else:
-        worldTime = 6000
+        timeValue = 6000
         is_day = True
 
     ents = env.rob.getCachedObserve("getNearEntities") or []
@@ -94,7 +104,7 @@ def buildObservation(env) -> Observation:
         health=life,
         hunger=food,
         isDay=is_day,
-        timeOfDay=worldTime,
+        timeOfDay=timeValue,
         inventory=inv,
         nearbyEntities=parsedEnts,
         nearbyBlocks=blocks,

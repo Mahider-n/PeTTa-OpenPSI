@@ -35,7 +35,7 @@
       ($demands (queryAll &demandSpace demand))
       ; ($_ (println! (Demands: $demands)))
       
-      ($currDemand (getLeastSatisfiedDemandEpsilonGreedy &demandSpace 0.25))
+      ($currDemand (getLeastSatisfiedDemandEpsilonGreedy &demandSpace 0.1))
       ; ($_ (println! (Selected-Demand: $currDemand)))
       
       ((demand $demandName $minVal $maxVal $demandValue) $currDemand)
@@ -54,7 +54,7 @@
             (performAction $actions)
       ))
       ; ($_ (println! (Action Result: $result)))
-      ($x (
+      ($_ (
          if (== $result ())
             ()
             (updateRule $id $result &ruleSpace)
@@ -75,7 +75,9 @@
       ()
       (let* (
          ($_ (println! (Step $currentStep / $maxSteps)))
+         ($_ (applyIterationEnvironment $currentStep))
          ($_ (cognitiveStep))
+         ($_ (py-call (utils.sleepSeconds 0.35)))
       )
       (cognitiveLoop $maxSteps (+ $currentStep 1))
       )
@@ -85,7 +87,7 @@
 
 (= (runInteractive)
    (let $_ (println! (Minecraft OpenPsi Agent Starting ...))
-   (cognitiveLoop 1 1))
+   (cognitiveLoop 30 1))
 )
 
 
