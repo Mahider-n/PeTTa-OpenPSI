@@ -283,6 +283,7 @@
     ) $res))
     ((seekShelter) (py-call (utils.executeAction seek_shelter)))
     ((enterShelter) (py-call (utils.executeAction enter_shelter)))
+    ((sleepAtNight) (py-call (utils.executeAction sleep_at_night)))
     ((eat) (py-call (utils.executeAction eat)))
     ((dig) (py-call (utils.executeAction dig)))
     ((buildShelter) (py-call (utils.executeAction build_shelter)))

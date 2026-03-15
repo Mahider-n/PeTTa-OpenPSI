@@ -58,6 +58,7 @@ class VereyaEnvironment:
             ActionType.SEEK_SHELTER: self.doSeekShelter,
             ActionType.ENTER_SHELTER: self.doEnterShelter,
             ActionType.FIND_GROUND: self.doFindGround,
+            ActionType.SLEEP_AT_NIGHT: self.doSleepAtNight,
         }
 
     def sendHoldCommand(self, onCommand: str, holdSeconds: float, offCommand: Optional[str] = None, settleSeconds: float = 0.0):
@@ -167,6 +168,9 @@ class VereyaEnvironment:
 
     def doFindGround(self):
         return breathingOps.findGroundWhileSwimming(self)
+
+    def doSleepAtNight(self):
+        return shelterOps.sleepAtNight(self)
     
     def moveTo(self, target_x, target_y, target_z):
         if not self.connected or not self.rob:

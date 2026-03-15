@@ -215,6 +215,7 @@
                 )))
                 (Action (SEQ_AND (
                     (seekShelter)
+                    (sleepAtNight)
                 )))
             )
             (Goal (STV 1.0 0.9) (AND (
@@ -238,6 +239,7 @@
                 (Action (SEQ_AND (
                     (buildShelter)
                     (enterShelter)
+                    (sleepAtNight)
                 )))
             )
             (Goal (STV 1.0 0.88) (AND (

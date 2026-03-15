@@ -119,6 +119,7 @@ def executeAction(actionName: str, *args):
             "seek_shelter": ActionType.SEEK_SHELTER,
             "enter_shelter": ActionType.ENTER_SHELTER,
             "find_ground": ActionType.FIND_GROUND,
+            "sleep_at_night": ActionType.SLEEP_AT_NIGHT,
         }
 
         if normalized in actionMap and actionMap[normalized] == ActionType.MOVE_TO:
