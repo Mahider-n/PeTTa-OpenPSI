@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import queue
 import re
 import socket
@@ -29,6 +30,23 @@ def normalize_progress(value: float) -> float:
     return clamp_progress(value)
 
 
+def to_float(value: Any) -> float | None:
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+def to_text(value: Any) -> str:
+    if isinstance(value, str):
+        return value
+    return str(value)
+
+
 def parse_pairs(values: list[Any]) -> dict[str, float]:
     parsed: dict[str, float] = {}
     if len(values) % 2 != 0:
@@ -36,36 +54,99 @@ def parse_pairs(values: list[Any]) -> dict[str, float]:
     for i in range(0, len(values), 2):
         key = values[i]
         raw_value = values[i + 1]
-        if not isinstance(key, str) or not isinstance(raw_value, (int, float)):
+        value = to_float(raw_value)
+        if value is None:
             continue
-        parsed[key] = normalize_progress(float(raw_value))
+        parsed[to_text(key)] = normalize_progress(value)
     return parsed
+
+
+def parse_demand_entry(entry: Any) -> tuple[str, float] | None:
+    # Supports: [demand, name, min, max, value]
+    if isinstance(entry, (list, tuple)) and len(entry) >= 5:
+        kind = to_text(entry[0]).strip().lower()
+        name = to_text(entry[1]).strip()
+        value = to_float(entry[4])
+        if (
+            kind == "demand"
+            and name != ""
+            and value is not None
+        ):
+            return name, normalize_progress(value)
+
+    # Supports: "demand name min max value" textual fallback.
+    if isinstance(entry, str):
+        match = re.match(
+            r"^\(?\s*demand\s+([A-Za-z_][A-Za-z0-9_]*)\s+[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s+([-+]?\d*\.?\d+)\s*\)?$",
+            entry.strip(),
+            flags=re.IGNORECASE,
+        )
+        if match:
+            name, value = match.group(1), match.group(2)
+            return name, normalize_progress(float(value))
+
+    return None
+
+
+def parse_demand_payload(event_data: Any) -> dict[str, float]:
+    demands: dict[str, float] = {}
+
+    if isinstance(event_data, (list, tuple)):
+        # Legacy format: [name1, value1, name2, value2, ...]
+        pair_demands = parse_pairs(event_data)
+        if pair_demands:
+            return pair_demands
+
+        # Current format: [demand, name, min, max, value]
+        single = parse_demand_entry(event_data)
+        if single is not None:
+            name, value = single
+            demands[name] = value
+            return demands
+
+        # Batch format: [[demand, ...], [demand, ...], ...]
+        for entry in event_data:
+            parsed = parse_demand_entry(entry)
+            if parsed is None:
+                continue
+            name, value = parsed
+            demands[name] = value
+        return demands
+
+    if isinstance(event_data, str):
+        single = parse_demand_entry(event_data)
+        if single is not None:
+            name, value = single
+            demands[name] = value
+
+    return demands
 
 
 def parse_typed_event(payload: Any) -> dict[str, Any] | None:
     if not isinstance(payload, list) or len(payload) < 2:
         return None
-    event_type = payload[0]
+    event_type = to_text(payload[0]).strip().lower()
     event_data = payload[1]
-    if not isinstance(event_type, str):
-        return None
 
-    if event_type == "Demand" and isinstance(event_data, list):
-        demands = parse_pairs(event_data)
+    if event_type == "demand":
+        demands = parse_demand_payload(event_data)
         return {
             "label": "Demand update received",
             "demands": demands,
         }
 
-    if event_type == "Emotion" and isinstance(event_data, list):
+    if event_type == "emotion" and isinstance(event_data, list):
         emotions = parse_pairs(event_data)
         return {
             "label": "Emotion update received",
             "emotions": emotions,
         }
 
-    if event_type == "Action" and isinstance(event_data, list):
-        action_text = " ".join(str(item) for item in event_data)
+    if event_type == "action":
+        if isinstance(event_data, (list, tuple)):
+            action_text = " ".join(str(item) for item in event_data)
+        else:
+            action_text = to_text(event_data).strip()
         return {
             "label": "Action update received",
             "action": action_text,
@@ -121,19 +202,21 @@ def slugify(name: str) -> str:
 
 
 def normalize_demand_name(name: str) -> str | None:
-    normalized = name.strip().lower()
+    normalized = re.sub(r"[^a-z0-9_]+", "", name.strip().lower())
     for demand in FIXED_DEMANDS:
-        if normalized == demand.lower():
+        candidate = re.sub(r"[^a-z0-9_]+", "", demand.lower())
+        if normalized == candidate:
             return demand
     return None
 
 
 def normalize_emotion_name(name: str) -> str | None:
-    normalized = name.strip().lower()
+    normalized = re.sub(r"[^a-z0-9_]+", "", name.strip().lower())
     if normalized.endswith("value"):
         normalized = normalized[: -len("value")]
     for emotion in FIXED_EMOTIONS:
-        if normalized == emotion.lower():
+        candidate = re.sub(r"[^a-z0-9_]+", "", emotion.lower())
+        if normalized == candidate:
             return emotion
     return None
 
@@ -274,18 +357,6 @@ def run_dashboard(host: str, port: int) -> None:
         ):
             dpg.add_table_column(init_width_or_weight=110, width_fixed=True)
             dpg.add_table_column(init_width_or_weight=METRIC_BAR_WIDTH, width_fixed=True)
-        dpg.add_text("Emotions")
-        with dpg.table(
-            tag="emotions_container",
-            header_row=False,
-            policy=dpg.mvTable_SizingFixedFit,
-            borders_innerH=False,
-            borders_outerH=False,
-            borders_innerV=False,
-            borders_outerV=False,
-        ):
-            dpg.add_table_column(init_width_or_weight=110, width_fixed=True)
-            dpg.add_table_column(init_width_or_weight=METRIC_BAR_WIDTH, width_fixed=True)
         dpg.add_separator()
         dpg.add_text(default_value="Action: (none)", tag="action_text")
 
@@ -301,23 +372,13 @@ def run_dashboard(host: str, port: int) -> None:
     dpg.show_viewport()
     dpg.set_primary_window("main_window", True)
     demand_row_tags: dict[str, tuple[str, str, str]] = {}
-    emotion_row_tags: dict[str, tuple[str, str, str]] = {}
     initial_demand_value = 1.0 / len(FIXED_DEMANDS)
-    initial_emotion_value = 1.0 / len(FIXED_EMOTIONS)
     demand_state: dict[str, float] = {name: initial_demand_value for name in FIXED_DEMANDS}
-    emotion_state: dict[str, float] = {name: initial_emotion_value for name in FIXED_EMOTIONS}
     update_metric_section(
         parent_tag="demands_container",
         section_prefix="demand",
         values=demand_state,
         row_tags=demand_row_tags,
-    )
-
-    update_metric_section(
-        parent_tag="emotions_container",
-        section_prefix="emotion",
-        values=emotion_state,
-        row_tags=emotion_row_tags,
     )
 
     try:
@@ -337,20 +398,6 @@ def run_dashboard(host: str, port: int) -> None:
                         section_prefix="demand",
                         values=demand_state,
                         row_tags=demand_row_tags,
-                    )
-                if "emotions" in update and isinstance(update["emotions"], dict):
-                    for raw_name, value in update["emotions"].items():
-                        if not isinstance(raw_name, str):
-                            continue
-                        normalized_name = normalize_emotion_name(raw_name)
-                        if normalized_name is None:
-                            continue
-                        emotion_state[normalized_name] = clamp_progress(float(value))
-                    update_metric_section(
-                        parent_tag="emotions_container",
-                        section_prefix="emotion",
-                        values=emotion_state,
-                        row_tags=emotion_row_tags,
                     )
                 if "action" in update:
                     dpg.set_value("action_text", f"Action: {update['action']}")
@@ -374,8 +421,17 @@ def run_dashboard(host: str, port: int) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Minimal TCP state-change dashboard")
-    parser.add_argument("--host", default="127.0.0.1", help="TCP host to listen on")
-    parser.add_argument("--port", type=int, default=5001, help="TCP port to listen on")
+    parser.add_argument(
+        "--host",
+        default=os.getenv("OPENPSI_DASHBOARD_HOST", "127.0.0.1"),
+        help="TCP host to listen on",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.getenv("OPENPSI_DASHBOARD_PORT", "5001")),
+        help="TCP port to listen on",
+    )
     args = parser.parse_args()
     run_dashboard(args.host, args.port)
 
