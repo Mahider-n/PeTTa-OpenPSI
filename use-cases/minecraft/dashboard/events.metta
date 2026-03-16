@@ -1,10 +1,10 @@
-; !(import! &self "comms.py")
-
 (= (pushEvent $type $data) (
-    py-call (comms.send_event ($type $data))
+    if (== $data ())
+        ()
+        (let* (
+            (($head $tail) (decons-atom $data))
+            ($_ (println! (Pushing Event: $type - $head)))
+            ($_ (py-call (comms.send_event ($type $head))))
+        )
+    (pushEvent $type $tail))
 ))
-
-;; Tests
-; !(pushEvent Demand (energy 0.9 water 0.23))
-; !(pushEvent Emotion (happinessValue 0.64 sadnessValue 0.02 angerValue 0.45 fearValue 0.12 gratitudeValue 0.32))
-; !(pushEvent Action (Eat Food))
