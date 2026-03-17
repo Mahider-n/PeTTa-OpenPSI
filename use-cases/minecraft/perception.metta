@@ -69,10 +69,10 @@
                (or (== $type skeleton) 
                    (or (== $type spider) (== $type creeper))))
            True
-           False)))
-      (if $hostiles
-         True  
+           (empty))))
+      (if (== $hostiles ())
          False 
+         True  
       )
 ))
 

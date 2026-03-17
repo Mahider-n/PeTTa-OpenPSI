@@ -13,14 +13,14 @@
                (py-call (utils.serverCommand "time add 1000"))
                ()))
                
-      ($hungerPulse (isModuloZero $step 5))
+      ($hungerPulse (isModuloZero $step 10))
       ($_ (if $hungerPulse
-               (py-call (utils.serverCommand "effect give @p minecraft:hunger 10 60 true"))
+               (py-call (utils.serverCommand "effect give @p minecraft:hunger 10 40 true"))
                ()))
                
-      ($nightThreatPulse (isModuloZero $step 8))
+      ($nightThreatPulse (isModuloZero $step 7))
       ($_ (if (and $nightThreatPulse (isNightNow))
-               (py-call (utils.serverCommand "summon zombie ~6 ~ ~6"))
+               (py-call (utils.serverCommand "summon zombie ~15 ~ ~15"))
                ()))
    )
    ()
@@ -245,6 +245,7 @@
       1
       (let* (
          (($head $tail) (decons-atom $actions))
+         ($_ (eval (pushEvent Action ($head))))
          ($result (performSingleAction $head))
          ($_ (println! ("Performed action: " $head " Result: " $result)))
          ($_ (updatePerception &perceptionSpace))

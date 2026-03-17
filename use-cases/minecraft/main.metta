@@ -1,11 +1,12 @@
 !(import! &self "utils.py")
-!(import! &self "comms.py")
 !(import! &self ../../main/modulator/modulator)
 !(import! &self ../../main/feedback-loop/feedback-loop)
 !(import! &self utils)
 !(import! &self ts-algorithm)
-!(import! &self dashboard/events)
 
+!(import! &self "dashboard/comms.py")
+!(import! &self "dashboard/progress_dashboard.py")
+!(import! &self dashboard/events)
 
 !(bind! &kb (new-space))
 !(bind! &perceptionSpace (new-space))
@@ -40,7 +41,7 @@
       
       ($currDemand (getLeastSatisfiedDemandEpsilonGreedy &demandSpace 0.1))
       ; ($_ (println! (Selected-Demand: $currDemand)))
-
+      
       ((demand $demandName $minVal $maxVal $demandValue) $currDemand)
       
       ($goalObj (minecraftGoalSelector $demandName))
@@ -49,7 +50,6 @@
       
       
       (($actions $id) (actionPlanner &ruleSpace $goal))
-      ($_ (pushEvent Action $actions))
       ($_ (println! (Planned Actions: $actions)))
 
       ($result (

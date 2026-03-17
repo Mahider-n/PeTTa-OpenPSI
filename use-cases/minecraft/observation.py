@@ -43,7 +43,6 @@ def buildObservation(env) -> Observation:
         action_status = "unknown"
 
     worldTime = env.mc.getFullStat("WorldTime")
-    dayTime = int(dayTime) if dayTime is not None else None
     worldStart = int(env.mission.serverSection.initial_conditions.time_start or 0)
     if worldTime is not None:
         worldTime = int(worldTime)
@@ -52,11 +51,6 @@ def buildObservation(env) -> Observation:
         timeMod = dayTime % 24000
         isNight = 13000 <= timeMod < 23000
         is_day = not isNight
-        print(
-            f"DayTime: {dayTime},"
-            f"WorldTime: {worldTime}, WorldStart: {worldStart}, TimeOffset: {timeOffset}"
-        )
-        print(f"Time mod: {timeMod}, Is day: {is_day}")
         timeValue = dayTime
     else:
         timeValue = 6000

@@ -383,6 +383,12 @@ def sleepAtNight(env):
     env.rob.sendCommand("use 1")
     time.sleep(0.45)
     env.rob.sendCommand("use 0")
-    
+
     time.sleep(5)
+
+    if isLookingAtBed(env):
+        env.rob.sendCommand("turn 0")
+        env.rob.sendCommand("pitch 0")
+        time.sleep(0.25)
+
     return "Slept in Shelter"

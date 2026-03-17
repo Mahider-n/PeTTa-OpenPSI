@@ -79,17 +79,16 @@ class VereyaEnvironment:
             # The following commands are for testing purposes only
             # to ensure the agent has food and can eat.
             # Remove manual inteventions for a more naturalistic environment.
-            self.mc.sendCommand("chat /give @p apple 2")
-            time.sleep(0.1)
             
-            self.mc.sendCommand("chat /give @p bread 2")
-            time.sleep(0.1)
-            
-            self.mc.sendCommand("chat /give @p glow_berries 2")
+            self.mc.sendCommand("chat /give @p glow_berries 3")
             time.sleep(0.1)
             
             self.mc.sendCommand("chat /effect give @p minecraft:hunger 10 50 true")
             time.sleep(0.1)
+
+            time.sleep(0.1)
+            self.mc.sendCommand('chat /summon minecraft:item ~10 ~ ~ {Item:{id:"minecraft:apple",count:8}}')
+
 
             return True
         except Exception as e:
