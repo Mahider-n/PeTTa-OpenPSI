@@ -1,4 +1,4 @@
-# OpenClaw × OpenPsi — Use Case Documentation
+# OpenClaw and OpenPsi Minimal integration 
 
 ## Overview
 
@@ -6,7 +6,7 @@ This use case implements **Option 2** from the OpenClaw OpenPsi integration desi
 
 Rather than embedding OpenPsi inside OpenClaw, OpenPsi runs independently and controls OpenClaw. OpenClaw becomes the sensorimotor interface to real-world messaging platforms like WhatsApp and Telegram.
 
-OpenClaw OpenPsi integration minimal design: https://docs.google.com/document/d/1dGZAcUNeI6vc6do0Ih8aLjQaR4goMSWPt1rIdYqGi14/edit?usp=sharing 
+OpenClaw and OpenPsi integration minimal design: https://docs.google.com/document/d/1dGZAcUNeI6vc6do0Ih8aLjQaR4goMSWPt1rIdYqGi14/edit?usp=sharing 
 
 ```
 WhatsApp / Telegram message
