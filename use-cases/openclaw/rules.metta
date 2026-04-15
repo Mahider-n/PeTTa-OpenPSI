@@ -1,7 +1,7 @@
 (= (addOpenClawRules $space) (
   let $rules (superpose (
 
-    ;; Rule 1: Respond immediately to urgent messages
+    ; rule 1- Respond immediately to urgent messages
     (: Rule 1
         (TTV 0)
         (STV 0.95 0.9)
@@ -22,7 +22,7 @@
         )
     )
 
-    ;; Rule 2: Search the web and then respond for info requests
+    ; rule 2- Search the web and then respond for info requests
     (: Rule 2
         (TTV 0)
         (STV 0.9 0.85)
@@ -44,7 +44,7 @@
         )
     )
 
-    ;; Rule 3: Respond to non-urgent messages normally
+    ; rule 3- Respond to non-urgent messages normally
     (: Rule 3
         (TTV 0)
         (STV 0.85 0.8)
@@ -65,7 +65,7 @@
         )
     )
 
-    ;; Rule 4: Idle/wait when no messages pending
+    ; rule 4 - wait when no messages pending
     (: Rule 4
         (TTV 0)
         (STV 0.8 0.75)
@@ -85,7 +85,7 @@
         )
     )
 
-    ;; Rule 5: Proactively explore sessions when curious
+    ; rule 5- proactively explore sessions when curious
     (: Rule 5
         (TTV 0)
         (STV 0.75 0.7)

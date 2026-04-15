@@ -1,8 +1,18 @@
-import time
+
+import requests
 from typing import Optional
 from type import ActionType, Observation
 import actions as actionOps
 import observation as observationOps
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+
+GATEWAY_URL = os.getenv("GATEWAY_URL")
+DEFAULT_SESSION_KEY = os.getenv("DEFAULT_SESSION_KEY")
+
 
 class OpenClawEnvironment:
     def __init__(self):
@@ -13,31 +23,33 @@ class OpenClawEnvironment:
         self.last_search_result: Optional[str] = None
         self.last_file_content: Optional[str] = None
         self.active_sessions: list = []
+ 
 
         self.action_handlers = {
-            ActionType.SEND_MESSAGE: self.doSendMessage,
+            ActionType.SEND_MESSAGE:             self.doSendMessage,
             ActionType.SEND_MESSAGE_WITH_SEARCH: self.doSendMessageWithSearch,
-
-            ActionType.WEB_SEARCH:   self.doWebSearch,
-            ActionType.READ_FILE:    self.doReadFile,
-            ActionType.WRITE_FILE:   self.doWriteFile,
-            ActionType.LIST_SESSIONS: self.doListSessions,
-            ActionType.IDLE:         self.doIdle,
+            ActionType.WEB_SEARCH:               self.doWebSearch,
+            ActionType.READ_FILE:                self.doReadFile,
+            ActionType.WRITE_FILE:               self.doWriteFile,
+            ActionType.LIST_SESSIONS:            self.doListSessions,
+            ActionType.IDLE:                     self.doIdle,
+           
         }
 
     def connect(self) -> bool:
         print("Connecting to OpenClaw Gateway...")
         try:
-            import requests
-            resp = requests.get("http://127.0.0.1:18789/health", timeout=5)
+            resp = requests.get(
+                f"{GATEWAY_URL}/sessions/{DEFAULT_SESSION_KEY}/history?limit=1",
+                timeout=5,
+            )
             if resp.status_code == 200:
                 self.connected = True
-                print("Connected to OpenClaw Gateway.")
-                # Fetch the first available session
-                sessions = resp.json().get("sessions", [])
-                if sessions:
-                    self.current_session_id = sessions[0]
+                self.current_session_id = DEFAULT_SESSION_KEY
+                print(f"Connected to OpenClaw Gateway. Session: {self.current_session_id}")
                 return True
+            else:
+                print(f"Gateway returned status {resp.status_code}")
         except Exception as e:
             print(f"Connection failed: {e}")
         return False
@@ -64,6 +76,9 @@ class OpenClawEnvironment:
     def doSendMessage(self, text="Hello", session_id=None):
         return actionOps.doSendMessage(self, text, session_id)
 
+    def doSendMessageWithSearch(self):
+        return actionOps.doSendMessageWithSearch(self)
+
     def doWebSearch(self, query=""):
         return actionOps.doWebSearch(self, query)
 
@@ -78,6 +93,3 @@ class OpenClawEnvironment:
 
     def doIdle(self):
         return actionOps.doIdle(self)
-    
-    def doSendMessageWithSearch(self):
-        return actionOps.doSendMessageWithSearch(self)

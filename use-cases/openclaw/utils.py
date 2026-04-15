@@ -1,8 +1,10 @@
+
 import re
 import time
 from typing import Optional
 from type import ActionType, Observation
 from openclaw_env import OpenClawEnvironment
+import observation as observationOps
 
 currentEnv: Optional[OpenClawEnvironment] = None
 
@@ -31,24 +33,30 @@ def getObservation() -> list:
 
 def executeAction(actionName: str, *args):
     if not currentEnv:
+        print("[utils] executeAction called but not connected.")
         return []
-    
+
     action_map = {
-        "send_message":   ActionType.SEND_MESSAGE,
-        "send_message_with_search": ActionType.SEND_MESSAGE_WITH_SEARCH,
-        "web_search":     ActionType.WEB_SEARCH,
-        "read_file":      ActionType.READ_FILE,
-        "write_file":     ActionType.WRITE_FILE,
-        "list_sessions":  ActionType.LIST_SESSIONS,
-        "idle":           ActionType.IDLE,
+        "send_message":              ActionType.SEND_MESSAGE,
+        "send_message_with_search":  ActionType.SEND_MESSAGE_WITH_SEARCH,
+        "web_search":                ActionType.WEB_SEARCH,
+        "read_file":                 ActionType.READ_FILE,
+        "write_file":                ActionType.WRITE_FILE,
+        "list_sessions":             ActionType.LIST_SESSIONS,
+        "idle":                      ActionType.IDLE,
     }
 
-    normalized = re.sub(r'(?<!^)(?=[A-Z])', '_', actionName).lower()
+    normalized = actionName.strip().lower().replace(" ", "_")
+
+    if "_" not in normalized:
+        normalized = re.sub(r"(?<!^)(?=[A-Z])", "_", actionName).lower()
+
     action_type = action_map.get(normalized)
     if action_type:
-        return currentEnv.executeAction(action_type, *args) or []
-    
-    print(f"Unknown action: {actionName}")
+        result = currentEnv.executeAction(action_type, *args) or []
+        return result
+
+    print(f"[utils] Unknown action: '{actionName}' (normalized: '{normalized}')")
     return []
 
 
@@ -75,6 +83,7 @@ def toSymbol(value) -> str:
     text = str(value or "").strip().lower()
     text = re.sub(r"[^a-z0-9_]", "_", text)
     text = re.sub(r"_+", "_", text)
+    text = text.strip("_")
     return text or "unknown"
 
 
@@ -86,17 +95,17 @@ def observationToMetta(obs: Observation) -> list:
     atoms.append(f"(urgency {round(obs.message_urgency, 3)})")
     atoms.append(f"(unansweredCount {obs.unanswered_count})")
     atoms.append(f"(timeSinceMessage {round(obs.time_since_last_message, 1)})")
-    atoms.append(f"(lastActionSuccess {obs.last_action_success})")
-    atoms.append(f"(hasMessage {obs.unanswered_count > 0})")
-    
+    atoms.append(f"(lastActionSuccess {str(obs.last_action_success).lower()})")
+    atoms.append(f"(hasMessage {str(obs.unanswered_count > 0).lower()})")
+
     if obs.message_text:
         safe = toSymbol(obs.message_text[:40])
         atoms.append(f"(messageText {safe})")
-    
+
     if obs.web_search_result:
-        atoms.append(f"(hasSearchResult True)")
-    
+        atoms.append(f"(hasSearchResult true)")
+
     for s in obs.active_sessions:
         atoms.append(f"(activeSession {toSymbol(s)})")
-    
+
     return atoms
