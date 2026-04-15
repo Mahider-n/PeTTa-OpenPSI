@@ -145,15 +145,11 @@ The **Action** field shows the last executed action (e.g. `searchWeb`, `waitForM
 
 ---
 
-## Known Limitations
+## Current Known Limitations
 
-1. **Gateway auth** — The OpenClaw WebSocket requires Ed25519 device authentication using a keypair stored in the browser's `localStorage`. Until this is extracted and used, the agent connects via HTTP polling which works but cannot receive push notifications for new messages in real time — it polls instead on each cognitive step.
+  **Send reliability** — The current OpenClaw integration uses `sessions_send` and a legacy `message` fallback. If `sessions_send` is unavailable or returns 404, replies may fail unless the fallback path is also supported by the gateway.
 
-2. **Message polling** — The HTTP REST endpoints for session history are not officially documented. The current implementation tries several likely endpoint paths. If they all return 404, messages will not be detected (but the rest of the cognitive loop still works).
-
-3. **No real-time push** — Without WebSocket auth, the agent discovers new messages only when a cognitive step happens. For low-latency response, reduce the sleep in `cognitiveLoop` or increase steps.
-
-4. **Infinite loop** — `main.metta` runs `cognitiveLoop 50 1` which completes 50 steps and stops. For continuous operation change to a larger number or wrap in a shell loop.
+  **Infinite loop** — `main.metta` runs `cognitiveLoop 50 1` which completes 50 steps and stops. For continuous operation change to a larger number or wrap in a shell loop.
 
 ---
 
