@@ -3,7 +3,7 @@ import requests
 from typing import Optional, TYPE_CHECKING
 import os
 from dotenv import load_dotenv
-
+import subprocess
 load_dotenv()
 
 
@@ -100,34 +100,71 @@ def fetchHistory(session_key: str = DEFAULT_SESSION_KEY, limit: int = 50) -> Opt
     print(f"[actions] fetchHistory failed - returning empty history")
     return []
  
-
-def doSendMessage(env: "OpenClawEnvironment", text: str = "Hello", session_id: Optional[str] = None) -> Optional[str]:
+def doSendMessage(env: "OpenClawEnvironment", text: str = "Hello, this is a message from openpsi", session_id: Optional[str] = None) -> Optional[str]:
     session_key = session_id or env.current_session_id or DEFAULT_SESSION_KEY
     
-    result = _invoke("sessions_send", {
-        "sessionKey": session_key,
-        "message": text
-    })
+    target = session_key.split(":")[-1]
     
-    if result:
-        print(f"[actions] Message sent via sessions_send to {session_key}")
-        env.last_message_time = time.time()
-        return "sent"
+    print(f"🚀 OPENPSI IS REPLYING VIA CLI → {text[:150]}")
+    print(f"   Channel: whatsapp | Target: {target}")
+
+    try:
+        cmd = [
+            "openclaw", "message", "send",
+            "--channel", "whatsapp",
+            "--target", target,
+            "--message", text
+        ]
+        
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
+        
+        if result.returncode == 0:
+            print("✅ SUCCESS: OpenPsi reply delivered via CLI")
+            print(f"   CLI output: {result.stdout.strip()}")
+            env.last_message_time = time.time()
+            return "sent"
+        else:
+            print(f"❌ CLI failed (code {result.returncode})")
+            print(f"   Error: {result.stderr.strip()}")
+            return None
+
+    except Exception as e:
+        print(f"❌ Exception calling CLI: {e}")
+        return None
+
+# --------------- session_send is currently unreliable, so currently its using CLI as a fallback ---------------
+
+# def doSendMessage(env: "OpenClawEnvironment", text: str = "Hello", session_id: Optional[str] = None) -> Optional[str]:
+#     session_key = session_id or env.current_session_id or DEFAULT_SESSION_KEY
     
-    print("[actions] sessions_send failed, trying legacy 'message' tool...")
-    result = _invoke("message", {
-        "action": "send",
-        "sessionKey": session_key,
-        "text": text,
-    })
+#     result = _invoke("sessions_send", {
+#         "sessionKey": session_key,
+#         "message": text
+#     })
     
-    if result:
-        print(f"[actions] Message sent via legacy tool to {session_key}")
-        env.last_message_time = time.time()
-        return "sent"
+#     if result:
+#         print(f"[actions] Message sent via sessions_send to {session_key}")
+#         print(f"🚀 OPENPSI DECIDED TO REPLY → {text[:100]}...")
+#         print(f"   Session: {session_key}")
+#         env.last_message_time = time.time()
+#         return "sent"
     
-    print(f"[actions] doSendMessage failed for session {session_key}")
-    return None
+#     print("[actions] sessions_send failed, trying legacy 'message' tool...")
+#     result = _invoke("message", {
+#         "action": "send",
+#         "sessionKey": session_key,
+#         "text": text,
+#     })
+    
+#     if result:
+#         print(f"[actions] Message sent via legacy tool to {session_key}")
+#         print(f"🚀 OPENPSI DECIDED TO REPLY → {text[:100]}...")
+#         print(f"   Session: {session_key}")
+#         env.last_message_time = time.time()
+#         return "sent"
+    
+#     print(f"[actions] doSendMessage failed for session {session_key}")
+#     return None
 
 
 def doWebSearch(env: "OpenClawEnvironment", query: str = "") -> Optional[str]:

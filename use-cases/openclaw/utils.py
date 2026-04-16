@@ -24,11 +24,12 @@ def disconnectFromOpenClaw() -> str:
     return "Disconnected"
 
 
-def getObservation() -> list:
-    if not currentEnv:
-        return []
-    obs = currentEnv.getObservation()
-    return observationToMetta(obs)
+def getObservation():
+    """Called from MeTTa: returns list of Metta atoms"""
+    env = OpenClawEnvironment()    
+    
+    observationOps.buildObservation(env)          
+    return getattr(env, 'metta_observation_atoms', ["(hasMessage False)", "(unansweredCount 0)"])
 
 
 def executeAction(actionName: str, *args):

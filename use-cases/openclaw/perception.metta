@@ -15,7 +15,8 @@
       ($_ (removeOccurrences $space))
       ($obs (py-call (utils.getObservation)))
       ($_ (collapse (addIndividualObservation $obs $space)))
-   ) ()))
+      ($_ (println! (perception: $obs)))
+    ) ()))
 
 (= (addIndividualObservation $atoms $space)
    (if (== $atoms ())
@@ -76,9 +77,6 @@
       ($_ (safeUpdateDemand $demandSpace helpfulness $helpVal))
 
       ($_ (println! (Demands: responsiveness= $respVal helpfulness= $helpVal)))
+      ($_ (println! (Context: hasMessage= $hasMsg unanswered= (getUnansweredCount $perceptionSpace))))
+      
    ) ()))
-
-(= (isEdible $item) False)
-(= (hasEdibleFood $space) False)
-(= (hasFoodNearby $space) False)
-(= (hostileNearBy $space) False)

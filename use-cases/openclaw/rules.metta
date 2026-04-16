@@ -47,7 +47,7 @@
     ; rule 3- Respond to non-urgent messages normally
     (: Rule 3
         (TTV 0)
-        (STV 0.85 0.8)
+        (STV 0.88 0.85)
         (Complexity 3)
         (IMPLICATION
             (AND

@@ -147,10 +147,9 @@ The **Action** field shows the last executed action (e.g. `searchWeb`, `waitForM
 
 ## Current Known Limitations
 
-  **Send reliability** — The current OpenClaw integration uses `sessions_send` and a legacy `message` fallback. If `sessions_send` is unavailable or returns 404, replies may fail unless the fallback path is also supported by the gateway.
+  **Send reliability** — The OpenClaw integration now uses the `openclaw` CLI via subprocess for sending messages, replacing the previous HTTP-based `sessions_send` and legacy `message` fallback. This CLI approach is found to be more reliable when the HTTP gateway endpoints are unavailable or return 404 errors.
 
-  **Infinite loop** — `main.metta` runs `cognitiveLoop 50 1` which completes 50 steps and stops. For continuous operation change to a larger number or wrap in a shell loop.
-
+ 
 ---
 
  

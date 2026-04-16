@@ -1,4 +1,4 @@
-; reused from minecraft use-case
+; reused ts-algorithm used similarly for minecraft use-case
 (= (import $name) (py-call (importlib.import_module $name)))
 (= (get-attribute $obj $name) (py-call (getattr $obj $name)))
 
