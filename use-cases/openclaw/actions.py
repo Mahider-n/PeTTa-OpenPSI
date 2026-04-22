@@ -15,7 +15,6 @@ OPENCLAW_GATEWAY_TOKEN = os.getenv("OPENCLAW_GATEWAY_TOKEN")
 GATEWAY_URL = os.getenv("GATEWAY_URL")
 DEFAULT_SESSION_KEY = os.getenv("DEFAULT_SESSION_KEY")
 
-
 HEADERS = {
     "Content-Type": "application/json",
     "Authorization": f"Bearer {OPENCLAW_GATEWAY_TOKEN}"
@@ -131,41 +130,6 @@ def doSendMessage(env: "OpenClawEnvironment", text: str = "Hello, this is a mess
     except Exception as e:
         print(f"❌ Exception calling CLI: {e}")
         return None
-
-# --------------- session_send is currently unreliable, so currently its using CLI as a fallback ---------------
-
-# def doSendMessage(env: "OpenClawEnvironment", text: str = "Hello", session_id: Optional[str] = None) -> Optional[str]:
-#     session_key = session_id or env.current_session_id or DEFAULT_SESSION_KEY
-    
-#     result = _invoke("sessions_send", {
-#         "sessionKey": session_key,
-#         "message": text
-#     })
-    
-#     if result:
-#         print(f"[actions] Message sent via sessions_send to {session_key}")
-#         print(f"🚀 OPENPSI DECIDED TO REPLY → {text[:100]}...")
-#         print(f"   Session: {session_key}")
-#         env.last_message_time = time.time()
-#         return "sent"
-    
-#     print("[actions] sessions_send failed, trying legacy 'message' tool...")
-#     result = _invoke("message", {
-#         "action": "send",
-#         "sessionKey": session_key,
-#         "text": text,
-#     })
-    
-#     if result:
-#         print(f"[actions] Message sent via legacy tool to {session_key}")
-#         print(f"🚀 OPENPSI DECIDED TO REPLY → {text[:100]}...")
-#         print(f"   Session: {session_key}")
-#         env.last_message_time = time.time()
-#         return "sent"
-    
-#     print(f"[actions] doSendMessage failed for session {session_key}")
-#     return None
-
 
 def doWebSearch(env: "OpenClawEnvironment", query: str = "") -> Optional[str]:
     result = _invoke("web_search", {"query": query})

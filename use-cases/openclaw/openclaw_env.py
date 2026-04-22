@@ -9,11 +9,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 GATEWAY_URL = os.getenv("GATEWAY_URL")
 DEFAULT_SESSION_KEY = os.getenv("DEFAULT_SESSION_KEY")
 
- 
+
 class OpenClawEnvironment:
     def __init__(self):
         self.connected = False
@@ -73,7 +72,7 @@ class OpenClawEnvironment:
         print(f"Unknown action: {action_type}")
         return None
 
-    def doSendMessage(self, text="Hello", session_id=None):
+    def doSendMessage(self, text="Hello,this is a message from openpsi environment 🚀", session_id=None):
         return actionOps.doSendMessage(self, text, session_id)
 
     def doSendMessageWithSearch(self):
