@@ -5,7 +5,6 @@
 
 A minimal integration where **OpenPsi acts as the cognitive brain** and **OpenClaw as the messaging body**.
 
----
 
 This use case implements **Option 2** from the OpenClaw–OpenPsi design:
 
@@ -21,15 +20,12 @@ This setup enables a self-contained agent that can:
 
 **Design reference:** https://docs.google.com/document/d/1dGZAcUNeI6vc6do0Ih8aLjQaR4goMSWPt1rIdYqGi14/edit?usp=sharing 
 
----
-
 ## Why This Use Case Was Chosen
 
 - It is a concrete brain-body demo. OpenPsi is the cognitive layer, and OpenClaw is the messaging/action layer. That makes the separation very visible and easy to explain.
 
 - Messaging is a natural real-world environment. A WhatsApp-style chat gives clear observations, clear goals, and easy-to-evaluate actions, so it is a very practical testbed for demand-driven cognition.
 
----
 
 ## What It Shows
 
@@ -39,13 +35,11 @@ This setup enables a self-contained agent that can:
 
 - It shows how a cognitive architecture can be inspected and debugged. The module has step logs, explicit rule choices, demand updates, and a log analyzer, which makes the agent’s decisions legible.
 
----
 
 ## Main Relevance
 
 The main relevance of this use case is that it turns OpenPsi from a purely internal cognitive model into something embodied and testable in a real communication environment. In other words, it demonstrates not just “how the agent thinks,” but how that thinking becomes observable, useful, and debuggable in an actual messaging workflow.
 
----
 
 ## Architecture
 
@@ -71,7 +65,6 @@ WhatsApp message
    OpenClaw Gateway          ← delivers reply back to user
 ```
 
----
 
 ### Brain–Body Separation
 
@@ -83,7 +76,7 @@ WhatsApp message
 | `observation.py` | Reads world state from OpenClaw | Sensory organs |
 | `actions.py` | Sends calls to OpenClaw | Motor output |
 
----
+
 
 ## Key Concepts
 
@@ -91,7 +84,7 @@ WhatsApp message
 - **Rules** — Map context → actions → goals  
 - **Thompson Sampling** — Selects the best rule based on past success  
 
----
+
 
 ## Quick Flow
 
@@ -101,7 +94,6 @@ WhatsApp message
 4. A rule is selected using Thompson Sampling  
 5. The action is executed through OpenClaw  
 
----
 
 ## Rules
 
@@ -114,7 +106,6 @@ WhatsApp message
 | noMessage + curiosityHigh    | listSessions → searchWeb           | Explore          |
 
 
----
 
 ## File Structure
 
@@ -141,7 +132,7 @@ use-cases/openclaw/
 
 ```
 
----
+
 
 ## How a Message Triggers the Agent
 
@@ -160,13 +151,13 @@ use-cases/openclaw/
 13. OpenClaw delivers the reply to the user's WhatsApp
 14. The rule's STV confidence is updated (success → alpha+1, fail → beta+1)
 
----
+
 
 ### For detailed architecture, cognitive loop, and file-level explanations refer:
 
  -> doc/INTEGRATION_DOCUMENTATION.md
 
----
+
 
 ## Setup
 
@@ -183,7 +174,7 @@ After OpenClaw is running and your WhatsApp session is connected, continue with 
 - OpenClaw Gateway running  
 - Python environment with dependencies  
 
----
+
 
 ### Install dependencies:
 
@@ -205,7 +196,7 @@ GEMINI_API_KEY="your_api_key"
 GEMINI_MODEL="gemini-2.5-flash"
 
 ```
----
+
 
  ### Run the Agent
 
