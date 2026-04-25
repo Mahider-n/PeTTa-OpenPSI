@@ -149,10 +149,7 @@ Reads and interprets messages from OpenClaw:
    ```
    Each keyword adds 0.25 to the score (capped at 1.0).
 
-2. **`_isInfoRequest(text)`** — Detects if the user is asking for information:
-   ```python
-   INFO_KEYWORDS = ["what is", "who is", "how does", "explain", ...]
-   ```
+2. **`_isInfoRequest(text)`** — Detects if the user is asking for information.
 
 3. **`buildObservation(env)`** — Main function that:
    - Fetches message history from OpenClaw
@@ -205,9 +202,18 @@ Sends actions to OpenClaw for execution:
    ```
    **Why CLI?** The HTTP `sessions_send` endpoint in the OpenClaw Gateway is currently not functioning (returns 404 errors). The CLI approach provides a reliable fallback for sending messages when the HTTP API fails.
 
-4. **`doWebSearch(env, query)`** — Performs web search (placeholder implementation)
+4. **`doWebSearch(env, query)`** — Performs grounded web search with Gemini:
+   - Reads `GEMINI_API_KEY` or `GOOGLE_API_KEY`
+   - Calls Gemini `generateContent` with the `google_search` tool enabled
+   - Extracts grounded source URLs from response metadata
+   - Falls back to the OpenClaw gateway `web_search` tool if Gemini is unavailable
 
-5. **`doListSessions(env)`** — Lists active messaging sessions
+5. **`doSendMessageWithSearch(env)`** — Sends the latest search result back to the user:
+   - Uses `env.last_search_result` if already available
+   - Otherwise searches from the latest user message first
+   - Reuses the existing CLI-based message send path
+
+6. **`doListSessions(env)`** — Lists active messaging sessions
 
 **Purpose:** Executes the agent's decisions by communicating with OpenClaw.
 

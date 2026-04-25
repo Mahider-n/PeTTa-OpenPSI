@@ -149,7 +149,24 @@ The **Action** field shows the last executed action (e.g. `searchWeb`, `waitForM
 
   **Send reliability** — The OpenClaw integration now uses the `openclaw` CLI via subprocess for sending messages, replacing the previous HTTP-based `sessions_send` and legacy `message` fallback. This CLI approach is found to be more reliable when the HTTP gateway endpoints are unavailable or return 404 errors.
 
+## Web Search Setup
+
+`actions.py` now supports real web search through the Gemini API instead of relying only on the placeholder OpenClaw `web_search` tool.
+
+Set these environment variables before running the agent:
+
+```bash
+export GEMINI_API_KEY="your_gemini_api_key"
+export GEMINI_MODEL="gemini-2.5-flash"
+```
+
+Notes:
+
+- `GOOGLE_API_KEY` is also accepted if you already use that variable name.
+- `GEMINI_MODEL` is optional. If omitted, the code defaults to `gemini-2.5-flash`.
+- When Gemini search succeeds, the result is stored in `env.last_search_result` and can be sent back through the existing `send_message_with_search` action.
+- If Gemini is not configured or fails, the code still falls back to the old gateway `web_search` tool.
+
  
 ---
 
- 

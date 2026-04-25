@@ -100,7 +100,7 @@
        (py-call (utils.executeAction send_message_with_search)))
 
     ((searchWeb)
-       (py-call (utils.executeAction web_search "OpenPsi cognitive architecture")))
+       (py-call (utils.executeAction web_search)))
 
     ((listSessions)
        (py-call (utils.executeAction list_sessions)))

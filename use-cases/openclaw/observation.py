@@ -1,18 +1,16 @@
 
 import time
-import re
 from typing import TYPE_CHECKING
 from type import Observation
 import actions as actionOps
-import os
 from dotenv import load_dotenv
+import os 
 
 load_dotenv()
 
 
 if TYPE_CHECKING:
     from openclaw_env import OpenClawEnvironment
-
 
 DEFAULT_SESSION_KEY = os.getenv("DEFAULT_SESSION_KEY")
 OPENCLAW_GATEWAY_TOKEN = os.getenv("OPENCLAW_GATEWAY_TOKEN")
@@ -21,12 +19,6 @@ URGENT_KEYWORDS = [
     "urgent", "help", "emergency", "asap", "immediately",
     "critical", "error", "broken", "failing", "crash",
 ]
-
-INFO_KEYWORDS = [
-    "what is", "who is", "how does", "explain", "tell me about",
-    "search", "find", "look up", "latest", "news", "recent",
-]
-
 
 def _extractText(content) -> str:
     """Extract plain text from a message content block (list or string)."""
@@ -47,10 +39,28 @@ def _computeUrgency(text: str) -> float:
     hits = sum(1 for kw in URGENT_KEYWORDS if kw in text_lower)
     return min(1.0, hits * 0.25)
 
-
 def _isInfoRequest(text: str) -> bool:
     text_lower = text.lower()
-    return any(kw in text_lower for kw in INFO_KEYWORDS)
+    
+    if '?' in text:
+        return True
+    
+    start_words = ['what', 'who', 'how', 'why', 'when', 'where', 
+                   'define', 'explain', 'describe', 'tell', 'search']
+    first_word = text_lower.split()[0] if text_lower.split() else ""
+    if first_word in start_words:
+        return True
+    
+    definition_indicators = ['meaning of', 'definition of', 'what is', 'what are']
+    if any(indicator in text_lower for indicator in definition_indicators):
+        return True
+    
+    request_indicators = ['search for', 'find', 'look up', 'tell me about']
+    if any(indicator in text_lower for indicator in request_indicators):
+        return True
+    
+    return False
+ 
 
 def buildObservation(env: "OpenClawEnvironment") -> Observation:
     """
@@ -83,7 +93,6 @@ def buildObservation(env: "OpenClawEnvironment") -> Observation:
     urgency = _computeUrgency(message_text)
     has_message = unanswered_count > 0
 
-    # === Create normal Python Observation ===
     now_ms = time.time() * 1000
     last_ts = messages[-1].get("timestamp", 0) if messages else 0
     time_since = (now_ms - last_ts) / 1000.0 if last_ts else 9999.0
@@ -103,7 +112,6 @@ def buildObservation(env: "OpenClawEnvironment") -> Observation:
         sentiment=None,
     )
 
-    # === Build Metta atoms (fixed escaping) ===
     escaped_text = message_text.replace('"', '\\"')
 
     metta_atoms = [
