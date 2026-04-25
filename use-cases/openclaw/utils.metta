@@ -10,6 +10,10 @@
 
 (= (urgencyThreshold) 0.5)
 
+(= (curiosityThreshold) 0.9)
+
+(= (waitForMessageSeconds) 5.0)
+
 (= (isUrgentNow)
    (let $vals (collapse (match &perceptionSpace (urgency $u) $u))
       (if (== $vals ())
@@ -20,12 +24,16 @@
    (let $vals (collapse (match &perceptionSpace (hasMessage $b) $b))
       (if (== $vals ()) False (car-atom $vals))))
 
+(= (isInfoRequestNow)
+   (let $vals (collapse (match &perceptionSpace (infoRequest $b) $b))
+      (if (== $vals ()) False (car-atom $vals))))
+
 (= (noMessageNow)
    (not (hasMessageNowGlobal)))
 
 (= (isCuriosityHighNow)
    (let $vals (collapse (match &demandSpace (demand curiosity $mn $mx $val) $val))
-      (if (== $vals ()) False (>= (car-atom $vals) 0.6))))
+      (if (== $vals ()) False (>= (car-atom $vals) (curiosityThreshold)))))
 
 (= (contextAtomName $ctxAtom)
    (case $ctxAtom (
@@ -40,7 +48,7 @@
       (noMessage      (noMessageNow))
       (urgentMessage  (isUrgentNow))
       (notUrgent      (not (isUrgentNow)))
-      (infoRequest    (isUrgentNow))
+      (infoRequest    (isInfoRequestNow))
       (curiosityHigh  (isCuriosityHighNow))
       ($_ False)
    )))
@@ -106,7 +114,7 @@
        (py-call (utils.executeAction list_sessions)))
 
     ((waitForMessage)
-       (py-call (utils.sleepSeconds 2.0)))
+       (py-call (utils.sleepSeconds (waitForMessageSeconds))))
 
     ($else (let* (
        ($_ (println! (Unknown Action: $else)))

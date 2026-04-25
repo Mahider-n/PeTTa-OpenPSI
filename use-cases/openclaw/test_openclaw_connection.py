@@ -4,15 +4,16 @@ import sys
 from pathlib import Path
 
 import requests
-from dotenv import load_dotenv
-
-load_dotenv()
+from openclaw_config import get_env
 
 CONFIG_PATH = Path.home() / ".openclaw" / "openclaw.json"
-GATEWAY_URL = os.getenv("GATEWAY_URL", "http://127.0.0.1:18789")
-TOKEN = os.getenv("OPENCLAW_GATEWAY_TOKEN")
-DEFAULT_SESSION_KEY = os.getenv("DEFAULT_SESSION_KEY")
+GATEWAY_URL = get_env("GATEWAY_URL", "http://127.0.0.1:18789")
+TOKEN = get_env("OPENCLAW_GATEWAY_TOKEN")
+DEFAULT_SESSION_KEY = get_env("DEFAULT_SESSION_KEY")
 
+print(GATEWAY_URL)
+print(TOKEN)
+print(DEFAULT_SESSION_KEY)
 
 def load_gateway_token() -> str:
     """Load the gateway token from env first, then fallback to config."""

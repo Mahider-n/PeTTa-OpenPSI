@@ -3,17 +3,14 @@ import time
 from typing import TYPE_CHECKING
 from type import Observation
 import actions as actionOps
-from dotenv import load_dotenv
-import os 
-
-load_dotenv()
+from openclaw_config import get_env
 
 
 if TYPE_CHECKING:
     from openclaw_env import OpenClawEnvironment
 
-DEFAULT_SESSION_KEY = os.getenv("DEFAULT_SESSION_KEY")
-OPENCLAW_GATEWAY_TOKEN = os.getenv("OPENCLAW_GATEWAY_TOKEN")
+DEFAULT_SESSION_KEY = get_env("DEFAULT_SESSION_KEY")
+OPENCLAW_GATEWAY_TOKEN = get_env("OPENCLAW_GATEWAY_TOKEN")
 
 URGENT_KEYWORDS = [
     "urgent", "help", "emergency", "asap", "immediately",
@@ -134,4 +131,3 @@ def buildObservation(env: "OpenClawEnvironment") -> Observation:
     print(f"[observation] Metta atoms created: {len(metta_atoms)} atoms")
 
     return obs
-

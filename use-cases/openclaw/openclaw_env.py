@@ -4,14 +4,10 @@ from typing import Optional
 from type import ActionType, Observation
 import actions as actionOps
 import observation as observationOps
-import os
-from dotenv import load_dotenv
+from openclaw_config import get_env
 
-load_dotenv()
-
-GATEWAY_URL = os.getenv("GATEWAY_URL")
-DEFAULT_SESSION_KEY = os.getenv("DEFAULT_SESSION_KEY")
-
+GATEWAY_URL = get_env("GATEWAY_URL")
+DEFAULT_SESSION_KEY = get_env("DEFAULT_SESSION_KEY")
 
 class OpenClawEnvironment:
     def __init__(self):

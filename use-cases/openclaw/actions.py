@@ -1,25 +1,21 @@
 import time
 import requests
 from typing import Optional, TYPE_CHECKING
-import os
-from dotenv import load_dotenv
 import subprocess
 import json
 import re 
-
-load_dotenv()
+from openclaw_config import get_env
 
 
 if TYPE_CHECKING:
     from openclaw_env import OpenClawEnvironment
 
-OPENCLAW_GATEWAY_TOKEN = os.getenv("OPENCLAW_GATEWAY_TOKEN")
-GATEWAY_URL = os.getenv("GATEWAY_URL")
-DEFAULT_SESSION_KEY = os.getenv("DEFAULT_SESSION_KEY")
+OPENCLAW_GATEWAY_TOKEN = get_env("OPENCLAW_GATEWAY_TOKEN")
+GATEWAY_URL = get_env("GATEWAY_URL")
+DEFAULT_SESSION_KEY = get_env("DEFAULT_SESSION_KEY")
 
-GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
-GEMINI_API_KEY=os.getenv("GEMINI_API_KEY")
-
+GEMINI_MODEL = get_env("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_API_KEY = get_env("GEMINI_API_KEY")
 
 HEADERS = {
     "Content-Type": "application/json",
@@ -115,6 +111,18 @@ def _extract_message_text(content) -> str:
         return " ".join(part for part in parts if part)
 
     return ""
+
+
+def _message_timestamp(msg: dict) -> int:
+    value = msg.get("timestamp", 0) if isinstance(msg, dict) else 0
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _normalize_history_order(messages: list) -> list:
+    return sorted(messages, key=_message_timestamp)
 
 
 def _latest_user_message(session_key: str) -> str:
@@ -252,10 +260,12 @@ def fetchHistory(session_key: str = DEFAULT_SESSION_KEY, limit: int = 50) -> Opt
                 try:
                     import json
                     parsed = json.loads(text) if isinstance(text, str) else text
-                    return parsed.get("messages", []) if isinstance(parsed, dict) else []
+                    messages = parsed.get("messages", []) if isinstance(parsed, dict) else []
+                    return _normalize_history_order(messages)
                 except:
                     pass
-        return result.get("messages", []) or result.get("details", {}).get("messages", [])
+        messages = result.get("messages", []) or result.get("details", {}).get("messages", [])
+        return _normalize_history_order(messages)
     
     print(f"[actions] fetchHistory failed - returning empty history")
     return []
@@ -336,6 +346,10 @@ def doSendMessageWithSearch(env: "OpenClawEnvironment") -> Optional[str]:
     return doSendMessage(env, text=message, session_id=session_key)
 
 def doWebSearch(env: "OpenClawEnvironment", query: str = "") -> Optional[str]:
+    if not query or not query.strip():
+        session_key = env.current_session_id or DEFAULT_SESSION_KEY
+        query = _latest_user_message(session_key)
+
     content = _gemini_web_search(query)
     if content:
         env.last_search_result = content
