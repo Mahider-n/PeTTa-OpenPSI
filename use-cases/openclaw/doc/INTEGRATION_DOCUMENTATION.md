@@ -704,8 +704,8 @@ Outputs:
 
 ## Future Enhancements
 
-1. **Emotional modulators** — Currently initialized but not fully integrated
-2. **Multi-session support** — Currently monitors single session
+1. **Multi-session support** — Right now the use case is centered around a single active session flow through DEFAULT_SESSION_KEY, even though listSessions exists and active_sessions is tracked in actions.py and openclaw_env.py. A strong next step would be selecting which session to attend to, prioritizing across sessions, and storing separate demand/history state per conversation.
+2. **Better info-question answering** -  The module now supports searchWeb -> respondWithSearchResult, but it still relies on simple heuristics and rule competition. A useful upgrade would be stronger retrieval/query construction, source-aware answers, and clearer separation between “chat reply” and “fact lookup” behavior.
 
 ---
 

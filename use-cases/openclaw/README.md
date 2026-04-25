@@ -23,6 +23,30 @@ This setup enables a self-contained agent that can:
 
 ---
 
+## Why This Use Case Was Chosen
+
+- It is a concrete brain-body demo. OpenPsi is the cognitive layer, and OpenClaw is the messaging/action layer. That makes the separation very visible and easy to explain.
+
+- Messaging is a natural real-world environment. A WhatsApp-style chat gives clear observations, clear goals, and easy-to-evaluate actions, so it is a very practical testbed for demand-driven cognition.
+
+---
+
+## What It Shows
+
+- It shows how internal demands can drive external behavior. The agent does not just react with fixed rules rather it maps perception into demands like responsiveness, helpfulness, curiosity, and energy, then chooses a goal from there.
+
+- It shows how symbolic planning can connect to real tool execution. Rules defined in MeTTa eventually call Python actions that talk to OpenClaw, search the web, or send a WhatsApp message.
+
+- It shows how a cognitive architecture can be inspected and debugged. The module has step logs, explicit rule choices, demand updates, and a log analyzer, which makes the agent’s decisions legible.
+
+---
+
+## Main Relevance
+
+The main relevance of this use case is that it turns OpenPsi from a purely internal cognitive model into something embodied and testable in a real communication environment. In other words, it demonstrates not just “how the agent thinks,” but how that thinking becomes observable, useful, and debuggable in an actual messaging workflow.
+
+---
+
 ## Architecture
 
 ```
